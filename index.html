@@ -8,6 +8,7 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
+        /* ... (existing styles) ... */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -23,7 +24,6 @@
             max-width: 1400px;
             margin: 0 auto;
         }
-
         .app-header {
             display: flex;
             align-items: center;
@@ -53,7 +53,6 @@
             border-radius: 20px;
             color: #475569;
         }
-
         .tabs {
             display: flex;
             flex-wrap: wrap;
@@ -81,7 +80,6 @@
             color: #1e293b;
             box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.04);
         }
-
         .tab-pane {
             display: none;
             background: white;
@@ -93,7 +91,6 @@
         .tab-pane.active {
             display: block;
         }
-
         .upload-zone {
             border: 2px dashed #cbd5e1;
             border-radius: 12px;
@@ -133,7 +130,6 @@
             color: #2563eb;
             font-weight: 500;
         }
-
         .toolbar {
             display: flex;
             flex-wrap: wrap;
@@ -225,7 +221,6 @@
         .stats strong {
             color: #1e293b;
         }
-
         .table-wrap {
             background: white;
             border-radius: 14px;
@@ -295,7 +290,6 @@
             text-align: center;
             padding: 40px 0;
         }
-
         .table-wrap::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -307,7 +301,6 @@
             background: #cbd5e1;
             border-radius: 8px;
         }
-
         .toast {
             position: fixed;
             bottom: 24px;
@@ -332,8 +325,6 @@
         .toast i {
             margin-right: 8px;
         }
-
-        /* ── REPORT SECTION ── */
         .report-section {
             background: white;
             border-radius: 14px;
@@ -368,7 +359,6 @@
             color: #94a3b8;
             font-weight: 500;
         }
-
         .report-subtabs {
             display: flex;
             gap: 4px;
@@ -377,6 +367,7 @@
             padding: 4px;
             margin-bottom: 18px;
             width: fit-content;
+            flex-wrap: wrap;
         }
         .report-subtab-btn {
             padding: 8px 18px;
@@ -403,8 +394,6 @@
         .report-subpane.active {
             display: block;
         }
-
-        /* KPI cards */
         .kpi-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -442,8 +431,6 @@
             color: #94a3b8;
             margin-top: 4px;
         }
-
-        /* Charts */
         .chart-grid {
             display: grid;
             grid-template-columns: 1.4fr 1fr;
@@ -530,8 +517,6 @@
             color: #1e293b;
             flex-shrink: 0;
         }
-
-        /* Oldest list */
         .oldest-list {
             display: flex;
             flex-direction: column;
@@ -585,8 +570,6 @@
             display: block;
             text-align: right;
         }
-
-        /* Category pill */
         .cat-pill {
             display: inline-flex;
             align-items: center;
@@ -602,8 +585,6 @@
             height: 7px;
             border-radius: 50%;
         }
-
-        /* Report filter bar */
         .report-filterbar {
             display: flex;
             flex-wrap: wrap;
@@ -658,7 +639,6 @@
         .report-table-row-flag td:first-child {
             box-shadow: inset 4px 0 0 var(--flag-color, transparent);
         }
-
         .empty-report {
             text-align: center;
             padding: 50px 20px;
@@ -669,8 +649,72 @@
             margin-bottom: 10px;
             display: block;
         }
-
-        /* ── PRINT REPORT STYLES ── */
+        /* Reverted History styles */
+        .reverted-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .reverted-stat {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px 16px;
+            border-left: 4px solid #8b5cf6;
+        }
+        .reverted-stat .num {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1e293b;
+        }
+        .reverted-stat .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .reverted-timeline {
+            margin-top: 8px;
+        }
+        .reverted-timeline .scheme-group {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #2563eb;
+        }
+        .reverted-timeline .scheme-group h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 6px;
+        }
+        .reverted-timeline .scheme-group .event {
+            display: flex;
+            gap: 16px;
+            padding: 4px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .reverted-timeline .scheme-group .event:last-child {
+            border-bottom: none;
+        }
+        .reverted-timeline .scheme-group .event .date {
+            font-weight: 600;
+            color: #475569;
+            min-width: 90px;
+        }
+        .reverted-timeline .scheme-group .event .detail {
+            flex: 1;
+            color: #1e293b;
+        }
+        .reverted-timeline .scheme-group .event .bill {
+            font-weight: 600;
+            color: #2563eb;
+        }
+        .print-only {
+            display: none;
+        }
         @media print {
             body {
                 background: white !important;
@@ -714,6 +758,10 @@
                 page-break-before: always;
             }
             #subpane-division {
+                display: block !important;
+                page-break-before: always;
+            }
+            #subpane-reverted {
                 display: block !important;
                 page-break-before: always;
             }
@@ -897,12 +945,19 @@
                 line-height: 24px;
             }
         }
-
-        /* print-only elements hidden by default */
         .print-only {
             display: none;
         }
-
+        .btn-print {
+            background: #1e293b;
+            color: white;
+        }
+        .btn-print:hover {
+            background: #0f172a;
+        }
+        .btn-print i {
+            margin-right: 6px;
+        }
         @media (max-width: 900px) {
             .chart-grid {
                 grid-template-columns: 1fr;
@@ -956,17 +1011,9 @@
             .report-filterbar .rf-clear {
                 margin-left: 0;
             }
-        }
-
-        .btn-print {
-            background: #1e293b;
-            color: white;
-        }
-        .btn-print:hover {
-            background: #0f172a;
-        }
-        .btn-print i {
-            margin-right: 6px;
+            .reverted-summary {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
@@ -1022,6 +1069,7 @@
                 <button class="report-subtab-btn active" data-sub="overview"><i class="fas fa-chart-pie"></i> Overview</button>
                 <button class="report-subtab-btn" data-sub="table"><i class="fas fa-table"></i> Table</button>
                 <button class="report-subtab-btn" data-sub="division"><i class="fas fa-map"></i> By Division</button>
+                <button class="report-subtab-btn" data-sub="reverted"><i class="fas fa-history"></i> Reverted History</button>
             </div>
 
             <!-- OVERVIEW -->
@@ -1065,6 +1113,12 @@
                         <tbody id="divisionBody"></tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- REVERTED HISTORY -->
+            <div class="report-subpane" id="subpane-reverted">
+                <div class="reverted-summary" id="revertedSummary"></div>
+                <div class="reverted-timeline" id="revertedTimeline"></div>
             </div>
         </div>
     </div>
@@ -1497,7 +1551,7 @@
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // REPORT GENERATION (data layer — unchanged logic)
+        // REPORT GENERATION (data layer)
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         const LEVEL_ORDER = ['TPIA', 'SO', 'SDO', 'TC', 'AO', 'EE'];
         const CATEGORY_ORDER = ['<30 days', '1 to 3 months', '3 to 6 months', '6 to 12 months', '> 1 Year', 'Unknown'];
@@ -1509,6 +1563,9 @@
             '> 1 Year': '#dc2626',
             'Unknown': '#94a3b8'
         };
+
+        // Column S index (0-based) in the original row (after list & source file)
+        const COL_S_INDEX = 18; // 19th column
 
         function getColumnIndex(headers, name) {
             return headers.findIndex(h => h.trim().toUpperCase() === name.toUpperCase());
@@ -1623,9 +1680,27 @@
                     pendingCategory = categorizeDays(pendingDays);
                 }
 
-                reportData.push({ billNo, scheme, division, billType, pendingLevel, pendingDays, pendingCategory });
+                // Extract column S value (if exists)
+                let colSValue = '';
+                const rowStartIndex = 2; // after list and source file
+                const colSIndex = rowStartIndex + COL_S_INDEX;
+                if (row.length > colSIndex) {
+                    colSValue = String(row[colSIndex] || '').trim();
+                }
+
+                reportData.push({
+                    billNo,
+                    scheme,
+                    division,
+                    billType,
+                    pendingLevel,
+                    pendingDays,
+                    pendingCategory,
+                    colS: colSValue
+                });
             }
 
+            // Reset report UI state
             reportSortCol = null;
             reportSortDir = 1;
             reportFilterText = '';
@@ -1641,6 +1716,7 @@
             renderOverview();
             renderReportTable();
             renderDivisionBreakdown();
+            renderRevertedHistory(); // NEW
 
             reportSection.style.display = 'block';
             btnExportReport.disabled = false;
@@ -1942,13 +2018,94 @@
             }).join('');
         }
 
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // REVERTED HISTORY (Column S)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function renderRevertedHistory() {
+            const containerSummary = document.getElementById('revertedSummary');
+            const containerTimeline = document.getElementById('revertedTimeline');
+
+            // Count reverted: column S contains "revert" (case-insensitive)
+            const revertedItems = reportData.filter(r =>
+                r.colS && r.colS.toLowerCase().includes('revert')
+            );
+            const totalReverted = revertedItems.length;
+
+            // Group by scheme
+            const byScheme = {};
+            revertedItems.forEach(r => {
+                const scheme = r.scheme || 'Unknown Scheme';
+                if (!byScheme[scheme]) byScheme[scheme] = [];
+                byScheme[scheme].push(r);
+            });
+
+            // Sort events within each scheme by pendingDays (oldest first)
+            Object.keys(byScheme).forEach(scheme => {
+                byScheme[scheme].sort((a, b) => (a.pendingDays ?? -1) - (b.pendingDays ?? -1));
+            });
+
+            // Summary stats
+            const uniqueSchemes = Object.keys(byScheme).length;
+            containerSummary.innerHTML = `
+                    <div class="reverted-stat" style="border-left-color:#dc2626;">
+                        <div class="num">${totalReverted}</div>
+                        <div class="label">Total Reverted Entries</div>
+                    </div>
+                    <div class="reverted-stat" style="border-left-color:#2563eb;">
+                        <div class="num">${uniqueSchemes}</div>
+                        <div class="label">Schemes Affected</div>
+                    </div>
+                    <div class="reverted-stat" style="border-left-color:#8b5cf6;">
+                        <div class="num">${reportData.length}</div>
+                        <div class="label">Total Bills</div>
+                    </div>
+                `;
+
+            // Timeline by scheme
+            if (uniqueSchemes === 0) {
+                containerTimeline.innerHTML =
+                    `<div class="empty-report"><i class="fas fa-check-circle"></i>No reverted entries found in Column S.</div>`;
+                return;
+            }
+
+            let timelineHtml = '';
+            // Sort schemes by total reverted count descending
+            const sortedSchemes = Object.keys(byScheme).sort((a, b) => byScheme[b].length - byScheme[a].length);
+            sortedSchemes.forEach(scheme => {
+                const events = byScheme[scheme];
+                timelineHtml += `<div class="scheme-group">
+                        <h4>${scheme} <span style="font-weight:400;font-size:12px;color:#64748b;">(${events.length} reverted)</span></h4>`;
+                events.forEach(r => {
+                    const dateStr = r.pendingDays !== null ? `${r.pendingDays} days` : '—';
+                    timelineHtml += `
+                            <div class="event">
+                                <span class="date">${dateStr}</span>
+                                <span class="detail">
+                                    <span class="bill">${r.billNo || '—'}</span>
+                                    <span style="color:#64748b;">· ${r.division || '—'} · ${r.pendingLevel || '—'}</span>
+                                    <span style="display:inline-block;background:#f1f5f9;padding:1px 8px;border-radius:10px;font-size:10px;margin-left:6px;">${r.colS}</span>
+                                </span>
+                            </div>
+                        `;
+                });
+                timelineHtml += `</div>`;
+            });
+            containerTimeline.innerHTML = timelineHtml;
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // EXPORT REPORT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         function exportReport() {
             if (reportData.length === 0) {
                 showToast('No report data to export.', 'fa-exclamation-triangle', '#dc2626');
                 return;
             }
             const rows = getFilteredReportRows();
-            const headers = ['Bill No', 'Scheme', 'Division', 'Bill Type', 'Pending Level', 'Pending Days', 'Pending Category'];
+            // Add column S to the export
+            const headers = ['Bill No', 'Scheme', 'Division', 'Bill Type', 'Pending Level', 'Pending Days', 'Pending Category',
+                'Column S (Revert)'
+            ];
             const wsData = [headers];
             rows.forEach(r => {
                 wsData.push([
@@ -1958,13 +2115,15 @@
                     r.billType || '',
                     r.pendingLevel || '',
                     r.pendingDays !== null ? r.pendingDays : '',
-                    r.pendingCategory || ''
+                    r.pendingCategory || '',
+                    r.colS || ''
                 ]);
             });
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'TimelineReport');
 
+            // Summary sheet (existing)
             const s = computeStats();
             const summaryData = [['Pending Level', ...CATEGORY_ORDER, 'Total']];
             LEVEL_ORDER.filter(l => s.byLevel[l]).forEach(level => {
@@ -1974,6 +2133,23 @@
             });
             const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
             XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+            // Reverted summary sheet
+            const revertedItems = reportData.filter(r => r.colS && r.colS.toLowerCase().includes('revert'));
+            const revHeaders = ['Scheme', 'Bill No', 'Division', 'Pending Level', 'Pending Days', 'Column S Value'];
+            const revData = [revHeaders];
+            revertedItems.forEach(r => {
+                revData.push([
+                    r.scheme || '',
+                    r.billNo || '',
+                    r.division || '',
+                    r.pendingLevel || '',
+                    r.pendingDays !== null ? r.pendingDays : '',
+                    r.colS || ''
+                ]);
+            });
+            const wsRev = XLSX.utils.aoa_to_sheet(revData);
+            XLSX.utils.book_append_sheet(wb, wsRev, 'Reverted History');
 
             const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
             const blob = new Blob([wbout], { type: 'application/octet-stream' });
@@ -1985,11 +2161,11 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showToast(`Report exported (${rows.length} rows + summary).`, 'fa-download', '#16a34a');
+            showToast(`Report exported (${rows.length} rows + summary + reverted).`, 'fa-download', '#16a34a');
         }
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // PRINT REPORT — Tinsukia Division Abstract
+        // PRINT REPORT — Tinsukia Division Abstract (updated with Reverted History)
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         function printReport() {
             if (reportData.length === 0) {
@@ -1998,7 +2174,6 @@
             }
 
             const targetDivision = 'Tinsukia';
-            // Filter for Tinsukia division (case-insensitive)
             const tinsukiaData = reportData.filter(r =>
                 r.division && String(r.division).toLowerCase().includes(targetDivision.toLowerCase())
             );
@@ -2008,7 +2183,6 @@
                 return;
             }
 
-            // Build the print content
             const printWin = window.open('', '_blank', 'width=1100,height=800');
             if (!printWin) {
                 showToast('Please allow popups to print the report.', 'fa-exclamation-triangle', '#dc2626');
@@ -2019,13 +2193,14 @@
             const todayStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
             const total = tinsukiaData.length;
 
-            // Compute stats for Tinsukia
+            // Stats for Tinsukia
             const byLevel = {};
             const byCategory = {};
             CATEGORY_ORDER.forEach(c => byCategory[c] = 0);
             let critical = 0,
                 unknown = 0;
             let daysArr = [];
+            const revertedTinsukia = tinsukiaData.filter(r => r.colS && r.colS.toLowerCase().includes('revert'));
             tinsukiaData.forEach(r => {
                 const lvl = r.pendingLevel || 'Unknown';
                 if (!byLevel[lvl]) byLevel[lvl] = {};
@@ -2037,7 +2212,7 @@
             });
             const avgDays = daysArr.length ? Math.round(daysArr.reduce((a, b) => a + b, 0) / daysArr.length) : 0;
 
-            // Build level breakdown table rows
+            // Level breakdown rows
             let levelRowsHtml = '';
             LEVEL_ORDER.filter(l => byLevel[l]).forEach(level => {
                 const cats = byLevel[level];
@@ -2049,7 +2224,7 @@
                     </tr>`;
             });
 
-            // Build bill list (top 20 oldest)
+            // Top 20 oldest bills
             const sorted = [...tinsukiaData].filter(r => r.pendingDays !== null).sort((a, b) => b.pendingDays - a.pendingDays);
             const topBills = sorted.slice(0, 20);
             let billRowsHtml = '';
@@ -2071,22 +2246,54 @@
                 });
             }
 
-            // Build category bar chart (text-based)
+            // Category bar chart
             let barHtml = '';
             const maxCat = Math.max(...CATEGORY_ORDER.map(c => byCategory[c] || 0), 1);
             CATEGORY_ORDER.forEach(cat => {
                 const count = byCategory[cat] || 0;
-                const pct = Math.round((count / total) * 100);
-                const color = CATEGORY_COLORS[cat] || '#94a3b8';
                 const barWidth = Math.max(2, Math.round((count / maxCat) * 100));
+                const color = CATEGORY_COLORS[cat] || '#94a3b8';
                 barHtml += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                         <span style="width:120px;font-size:11px;font-weight:600;color:#475569;">${cat}</span>
                         <div style="flex:1;height:18px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
-                            <div style="height:100%;width:${barWidth}%;background:${color};border-radius:4px;transition:width 0.2s;"></div>
+                            <div style="height:100%;width:${barWidth}%;background:${color};border-radius:4px;"></div>
                         </div>
                         <span style="width:50px;font-size:12px;font-weight:700;color:#1e293b;text-align:right;">${count}</span>
                     </div>`;
             });
+
+            // Reverted History for Tinsukia
+            let revertedHtml = '';
+            if (revertedTinsukia.length > 0) {
+                const bySchemeT = {};
+                revertedTinsukia.forEach(r => {
+                    const scheme = r.scheme || 'Unknown Scheme';
+                    if (!bySchemeT[scheme]) bySchemeT[scheme] = [];
+                    bySchemeT[scheme].push(r);
+                });
+                Object.keys(bySchemeT).forEach(scheme => {
+                    bySchemeT[scheme].sort((a, b) => (a.pendingDays ?? -1) - (b.pendingDays ?? -1));
+                });
+                revertedHtml = `<div class="print-section"><h2><i>🔄</i> Reverted History</h2>
+                        <div style="margin-bottom:8px;font-size:12px;color:#475569;">Total reverted entries: <strong>${revertedTinsukia.length}</strong> across ${Object.keys(bySchemeT).length} schemes</div>`;
+                Object.keys(bySchemeT).forEach(scheme => {
+                    const events = bySchemeT[scheme];
+                    revertedHtml += `<div style="margin-bottom:8px;border-left:4px solid #2563eb;padding-left:10px;">
+                            <div style="font-weight:700;font-size:12px;">${scheme} (${events.length})</div>`;
+                    events.forEach(r => {
+                        const dateStr = r.pendingDays !== null ? `${r.pendingDays} days` : '—';
+                        revertedHtml += `<div style="font-size:11px;display:flex;gap:12px;padding:2px 0;">
+                                <span style="min-width:70px;color:#64748b;">${dateStr}</span>
+                                <span><strong>${r.billNo || '—'}</strong> · ${r.division || '—'} · <span style="background:#f1f5f9;padding:0 6px;border-radius:8px;">${r.colS}</span></span>
+                            </div>`;
+                    });
+                    revertedHtml += `</div>`;
+                });
+                revertedHtml += `</div>`;
+            } else {
+                revertedHtml =
+                    `<div class="print-section"><h2><i>🔄</i> Reverted History</h2><div style="color:#94a3b8;font-style:italic;">No reverted entries found for Tinsukia division.</div></div>`;
+            }
 
             const doc = `
                 <!DOCTYPE html>
@@ -2116,9 +2323,6 @@
                         .print-table th { background: #f1f5f9; font-weight: 700; padding: 6px 8px; border: 1px solid #e2e8f0; text-align: left; }
                         .print-table td { padding: 5px 8px; border: 1px solid #e2e8f0; }
                         .print-table tr:nth-child(even) td { background: #fafcff; }
-                        .print-table .highlight { background: #fef3c7; }
-                        .print-bar-group { margin: 6px 0; }
-                        .print-footer { margin-top: 20px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
                         .print-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
                         .print-oldest-item { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-left: 4px solid #dc2626; background: #fafafa; margin-bottom: 4px; border-radius: 4px; font-size: 11px; }
                         .print-oldest-item .rank { font-weight: 800; color: #cbd5e1; width: 20px; }
@@ -2127,8 +2331,8 @@
                         .print-oldest-item .info .meta { color: #64748b; font-size: 10px; }
                         .print-oldest-item .days { font-weight: 800; color: #dc2626; font-size: 13px; white-space: nowrap; }
                         .print-oldest-item .days small { font-weight: 600; font-size: 9px; color: #94a3b8; display: block; text-align: right; }
-                        .print-badge { display: inline-block; background: #8b5cf6; color: white; padding: 0 12px; border-radius: 10px; font-size: 10px; font-weight: 700; line-height: 20px; }
-                        @media print { body { padding: 6mm; } .no-print { display: none !important; } .print-grid { break-inside: avoid; } .print-section { break-inside: avoid; } .print-table-wrap { break-inside: auto; } }
+                        .print-footer { margin-top: 20px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+                        @media print { body { padding: 6mm; } .print-grid { break-inside: avoid; } .print-section { break-inside: avoid; } }
                     </style>
                 </head>
                 <body>
@@ -2153,9 +2357,7 @@
                         <div class="print-2col">
                             <div class="print-section">
                                 <h2><i>📊</i> Pending Age Distribution</h2>
-                                <div class="print-bar-group">
-                                    ${barHtml}
-                                </div>
+                                <div>${barHtml}</div>
                             </div>
                             <div class="print-section">
                                 <h2><i>🔥</i> Oldest Bills</h2>
@@ -2173,8 +2375,8 @@
                             </div>
                         </div>
 
-                        <!-- LEVEL BREAKDOWN TABLE -->
-                        <div class="print-section" style="margin-top:6px;">
+                        <!-- LEVEL BREAKDOWN -->
+                        <div class="print-section">
                             <h2><i>📂</i> Breakdown by Pending Level</h2>
                             <div class="print-table-wrap">
                                 <table class="print-table">
@@ -2192,20 +2394,14 @@
                             </div>
                         </div>
 
-                        <!-- BILL LIST (TOP 20 OLDEST) -->
+                        <!-- TOP 20 BILLS -->
                         <div class="print-section">
                             <h2><i>📄</i> Oldest Pending Bills — Top 20</h2>
                             <div class="print-table-wrap">
                                 <table class="print-table">
                                     <thead>
                                         <tr>
-                                            <th>#</th>
-                                            <th>Bill No</th>
-                                            <th>Scheme</th>
-                                            <th>Bill Type</th>
-                                            <th>Level</th>
-                                            <th>Days</th>
-                                            <th>Category</th>
+                                            <th>#</th><th>Bill No</th><th>Scheme</th><th>Bill Type</th><th>Level</th><th>Days</th><th>Category</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2215,6 +2411,9 @@
                                 ${sorted.length > 20 ? `<div style="font-size:10px;color:#94a3b8;margin-top:4px;">Showing 20 of ${sorted.length} dated bills.</div>` : ''}
                             </div>
                         </div>
+
+                        <!-- REVERTED HISTORY -->
+                        ${revertedHtml}
 
                         <!-- FOOTER -->
                         <div class="print-footer">
@@ -2265,7 +2464,7 @@
         reportSection.style.display = 'none';
         btnExportReport.disabled = true;
         btnPrintReport.disabled = true;
-        console.log('📊 5‑List XLS Merger + Timeline Report ready (0000-00-00 → null)');
+        console.log('📊 5‑List XLS Merger + Timeline Report ready (Column S support added)');
     </script>
 </body>
 </html>
