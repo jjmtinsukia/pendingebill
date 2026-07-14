@@ -2,1245 +2,2270 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>5‑List XLS → Timeline Report</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: #f4f7fc; padding: 24px; color: #1e293b; }
-        .app { max-width: 1400px; margin: 0 auto; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: #f4f7fc;
+            padding: 24px;
+            color: #1e293b;
+        }
+        .app {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
         .app-header {
-            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
-            background: white; padding: 20px 28px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            background: white;
+            padding: 20px 28px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             margin-bottom: 24px;
         }
-        .app-header h1 { font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        .app-header h1 i { color: #2563eb; }
-        .app-header .badge { font-size: 13px; background: #e2e8f0; padding: 4px 14px; border-radius: 20px; color: #475569; }
+        .app-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .app-header h1 i {
+            color: #2563eb;
+        }
+        .app-header .badge {
+            font-size: 13px;
+            background: #e2e8f0;
+            padding: 4px 14px;
+            border-radius: 20px;
+            color: #475569;
+        }
 
         .tabs {
-            display: flex; flex-wrap: wrap; gap: 4px; background: #f1f5f9; border-radius: 12px 12px 0 0; padding: 6px 6px 0 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            background: #f1f5f9;
+            border-radius: 12px 12px 0 0;
+            padding: 6px 6px 0 6px;
         }
         .tab-btn {
-            padding: 10px 20px; border: none; border-radius: 8px 8px 0 0; background: transparent; font-weight: 600;
-            font-size: 14px; cursor: pointer; transition: background 0.15s; color: #64748b;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            background: transparent;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.15s;
+            color: #64748b;
         }
-        .tab-btn:hover { background: #e2e8f0; }
-        .tab-btn.active { background: white; color: #1e293b; box-shadow: 0 -2px 4px rgba(0,0,0,0.04); }
+        .tab-btn:hover {
+            background: #e2e8f0;
+        }
+        .tab-btn.active {
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.04);
+        }
 
         .tab-pane {
-            display: none; background: white; padding: 24px 20px; border-radius: 0 0 12px 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 20px;
+            display: none;
+            background: white;
+            padding: 24px 20px;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 20px;
         }
-        .tab-pane.active { display: block; }
+        .tab-pane.active {
+            display: block;
+        }
 
         .upload-zone {
-            border: 2px dashed #cbd5e1; border-radius: 12px; padding: 30px 20px; text-align: center;
-            transition: border-color 0.2s, background 0.2s; cursor: pointer;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
         }
-        .upload-zone:hover { border-color: #2563eb; background: #f8faff; }
-        .upload-zone.dragover { border-color: #2563eb; background: #eff6ff; }
-        .upload-zone i { font-size: 36px; color: #94a3b8; margin-bottom: 8px; }
-        .upload-zone h4 { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
-        .upload-zone p { color: #64748b; font-size: 13px; }
-        .upload-zone input[type="file"] { display: none; }
-        .file-status { margin-top: 10px; font-size: 14px; color: #2563eb; font-weight: 500; }
+        .upload-zone:hover {
+            border-color: #2563eb;
+            background: #f8faff;
+        }
+        .upload-zone.dragover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+        .upload-zone i {
+            font-size: 36px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .upload-zone h4 {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        .upload-zone p {
+            color: #64748b;
+            font-size: 13px;
+        }
+        .upload-zone input[type="file"] {
+            display: none;
+        }
+        .file-status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #2563eb;
+            font-weight: 500;
+        }
 
         .toolbar {
-            display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
-            background: white; padding: 14px 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            background: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             margin-bottom: 18px;
         }
         .toolbar .btn {
-            display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border-radius: 8px;
-            border: none; font-weight: 600; font-size: 13px; cursor: pointer; transition: background 0.15s;
-            background: #f1f5f9; color: #1e293b;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s;
+            background: #f1f5f9;
+            color: #1e293b;
         }
-        .toolbar .btn:hover { background: #e2e8f0; }
-        .toolbar .btn-primary { background: #2563eb; color: white; }
-        .toolbar .btn-primary:hover { background: #1d4ed8; }
-        .toolbar .btn-success { background: #16a34a; color: white; }
-        .toolbar .btn-success:hover { background: #15803d; }
-        .toolbar .btn-danger { background: #dc2626; color: white; }
-        .toolbar .btn-danger:hover { background: #b91c1c; }
-        .toolbar .btn-report { background: #8b5cf6; color: white; }
-        .toolbar .btn-report:hover { background: #7c3aed; }
-        .toolbar .btn:disabled { opacity: 0.5; pointer-events: none; }
+        .toolbar .btn:hover {
+            background: #e2e8f0;
+        }
+        .toolbar .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        .toolbar .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .toolbar .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        .toolbar .btn-success:hover {
+            background: #15803d;
+        }
+        .toolbar .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .toolbar .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .toolbar .btn-report {
+            background: #8b5cf6;
+            color: white;
+        }
+        .toolbar .btn-report:hover {
+            background: #7c3aed;
+        }
+        .toolbar .btn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
         .toolbar .search-box {
-            margin-left: auto; display: flex; align-items: center; gap: 6px;
-            background: #f1f5f9; padding: 4px 12px; border-radius: 8px;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 8px;
         }
-        .toolbar .search-box input { border: none; background: transparent; padding: 6px 0; outline: none; font-size: 14px; width: 160px; }
-        .toolbar .search-box input::placeholder { color: #94a3b8; }
-        .toolbar .search-box i { color: #94a3b8; }
-        .stats { font-size: 13px; color: #64748b; margin-right: 4px; }
-        .stats strong { color: #1e293b; }
+        .toolbar .search-box input {
+            border: none;
+            background: transparent;
+            padding: 6px 0;
+            outline: none;
+            font-size: 14px;
+            width: 160px;
+        }
+        .toolbar .search-box input::placeholder {
+            color: #94a3b8;
+        }
+        .toolbar .search-box i {
+            color: #94a3b8;
+        }
+        .stats {
+            font-size: 13px;
+            color: #64748b;
+            margin-right: 4px;
+        }
+        .stats strong {
+            color: #1e293b;
+        }
 
         .table-wrap {
-            background: white; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            overflow: auto; max-height: 72vh; position: relative;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            overflow: auto;
+            max-height: 72vh;
+            position: relative;
         }
-        .table-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 800px; }
-        .table-wrap thead { position: sticky; top: 0; z-index: 10; background: #f8fafc; }
+        .table-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 800px;
+        }
+        .table-wrap thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #f8fafc;
+        }
         .table-wrap th {
-            padding: 12px 14px; text-align: left; font-weight: 700; font-size: 12px;
-            text-transform: uppercase; letter-spacing: 0.3px; color: #475569;
-            border-bottom: 2px solid #e2e8f0; cursor: pointer; user-select: none; white-space: nowrap;
-            background: #f8fafc; transition: background 0.1s;
+            padding: 12px 14px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            background: #f8fafc;
+            transition: background 0.1s;
         }
-        .table-wrap th:hover { background: #f1f5f9; }
-        .table-wrap th i { margin-left: 4px; font-size: 11px; opacity: 0.5; }
-        .table-wrap th.sorted-asc i { opacity: 1; color: #2563eb; }
-        .table-wrap th.sorted-desc i { opacity: 1; color: #2563eb; transform: rotate(180deg); }
-        .table-wrap td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: top; max-width: 260px; word-break: break-word; line-height: 1.5; }
-        .table-wrap tr:hover td { background: #fafcff; }
-        .table-wrap .empty-row td { color: #94a3b8; font-style: italic; text-align: center; padding: 40px 0; }
+        .table-wrap th:hover {
+            background: #f1f5f9;
+        }
+        .table-wrap th i {
+            margin-left: 4px;
+            font-size: 11px;
+            opacity: 0.5;
+        }
+        .table-wrap th.sorted-asc i {
+            opacity: 1;
+            color: #2563eb;
+        }
+        .table-wrap th.sorted-desc i {
+            opacity: 1;
+            color: #2563eb;
+            transform: rotate(180deg);
+        }
+        .table-wrap td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+            max-width: 260px;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+        .table-wrap tr:hover td {
+            background: #fafcff;
+        }
+        .table-wrap .empty-row td {
+            color: #94a3b8;
+            font-style: italic;
+            text-align: center;
+            padding: 40px 0;
+        }
 
-        .table-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
-        .table-wrap::-webkit-scrollbar-track { background: #f1f5f9; }
-        .table-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        .table-wrap::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .table-wrap::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .table-wrap::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
 
         .toast {
-            position: fixed; bottom: 24px; right: 24px; background: #1e293b; color: white;
-            padding: 14px 24px; border-radius: 12px; font-weight: 500; font-size: 14px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px);
-            transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 999;
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            z-index: 999;
         }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast i { margin-right: 8px; }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast i {
+            margin-right: 8px;
+        }
 
         /* ── REPORT SECTION ── */
         .report-section {
-            background: white; border-radius: 14px; padding: 20px; margin-top: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: none;
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            margin-top: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            display: none;
         }
         .report-topbar {
-            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
             margin-bottom: 18px;
         }
-        .report-topbar h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
-        .report-topbar h2 i { color: #8b5cf6; }
-        .report-topbar .report-actions { display: flex; gap: 8px; }
-        .as-of { font-size: 12px; color: #94a3b8; font-weight: 500; }
+        .report-topbar h2 {
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .report-topbar h2 i {
+            color: #8b5cf6;
+        }
+        .report-topbar .report-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .as-of {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
 
         .report-subtabs {
-            display: flex; gap: 4px; background: #f1f5f9; border-radius: 10px; padding: 4px; margin-bottom: 18px; width: fit-content;
+            display: flex;
+            gap: 4px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 18px;
+            width: fit-content;
         }
         .report-subtab-btn {
-            padding: 8px 18px; border: none; border-radius: 7px; background: transparent; font-weight: 600;
-            font-size: 13px; cursor: pointer; color: #64748b; transition: all 0.15s;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 7px;
+            background: transparent;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.15s;
         }
-        .report-subtab-btn:hover { color: #1e293b; }
-        .report-subtab-btn.active { background: white; color: #1e293b; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
-        .report-subpane { display: none; }
-        .report-subpane.active { display: block; }
+        .report-subtab-btn:hover {
+            color: #1e293b;
+        }
+        .report-subtab-btn.active {
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+        .report-subpane {
+            display: none;
+        }
+        .report-subpane.active {
+            display: block;
+        }
 
         /* KPI cards */
-        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 22px; }
-        .kpi-card {
-            background: #f8fafc; border-radius: 12px; padding: 16px 18px; border-left: 4px solid #cbd5e1;
-            cursor: pointer; transition: transform 0.12s, box-shadow 0.12s;
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
         }
-        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
-        .kpi-card .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: #64748b; font-weight: 700; margin-bottom: 6px; }
-        .kpi-card .kpi-value { font-size: 26px; font-weight: 800; color: #1e293b; line-height: 1; }
-        .kpi-card .kpi-sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+        .kpi-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px 18px;
+            border-left: 4px solid #cbd5e1;
+            cursor: pointer;
+            transition: transform 0.12s, box-shadow 0.12s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+        .kpi-card .kpi-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #64748b;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .kpi-card .kpi-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1;
+        }
+        .kpi-card .kpi-sub {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
 
         /* Charts */
-        .chart-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 24px; }
-        .chart-card { background: #f8fafc; border-radius: 14px; padding: 18px 20px; }
-        .chart-card h3 { font-size: 14px; font-weight: 700; color: #334155; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-        .chart-card h3 i { color: #8b5cf6; font-size: 13px; }
-        .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 14px; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #475569; cursor: pointer; user-select: none; }
-        .legend-item .dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-        .legend-item.dim { opacity: 0.35; }
-        .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .bar-row .bar-label { width: 46px; font-size: 12px; font-weight: 700; color: #475569; flex-shrink: 0; }
-        .bar-row .bar-track { flex: 1; display: flex; height: 26px; border-radius: 6px; overflow: hidden; background: #e2e8f0; }
-        .bar-row .bar-seg { height: 100%; cursor: pointer; transition: filter 0.1s; min-width: 2px; }
-        .bar-row .bar-seg:hover { filter: brightness(1.12); }
-        .bar-row .bar-total { width: 34px; text-align: right; font-size: 12px; font-weight: 700; color: #1e293b; flex-shrink: 0; }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .chart-card {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 18px 20px;
+        }
+        .chart-card h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chart-card h3 i {
+            color: #8b5cf6;
+            font-size: 13px;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 16px;
+            margin-top: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #475569;
+            cursor: pointer;
+            user-select: none;
+        }
+        .legend-item .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+        .legend-item.dim {
+            opacity: 0.35;
+        }
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .bar-row .bar-label {
+            width: 46px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            flex-shrink: 0;
+        }
+        .bar-row .bar-track {
+            flex: 1;
+            display: flex;
+            height: 26px;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #e2e8f0;
+        }
+        .bar-row .bar-seg {
+            height: 100%;
+            cursor: pointer;
+            transition: filter 0.1s;
+            min-width: 2px;
+        }
+        .bar-row .bar-seg:hover {
+            filter: brightness(1.12);
+        }
+        .bar-row .bar-total {
+            width: 34px;
+            text-align: right;
+            font-size: 12px;
+            font-weight: 700;
+            color: #1e293b;
+            flex-shrink: 0;
+        }
 
         /* Oldest list */
-        .oldest-list { display: flex; flex-direction: column; gap: 8px; }
-        .oldest-item {
-            display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: white; border-radius: 9px;
-            border-left: 4px solid #dc2626; font-size: 13px;
+        .oldest-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
-        .oldest-item .rank { font-weight: 800; color: #cbd5e1; font-size: 15px; width: 20px; }
-        .oldest-item .info { flex: 1; min-width: 0; }
-        .oldest-item .info .bill { font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .oldest-item .info .meta { color: #64748b; font-size: 11.5px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .oldest-item .days { font-weight: 800; font-size: 15px; color: #dc2626; white-space: nowrap; }
-        .oldest-item .days small { font-weight: 600; font-size: 10px; color: #94a3b8; display: block; text-align: right; }
+        .oldest-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: white;
+            border-radius: 9px;
+            border-left: 4px solid #dc2626;
+            font-size: 13px;
+        }
+        .oldest-item .rank {
+            font-weight: 800;
+            color: #cbd5e1;
+            font-size: 15px;
+            width: 20px;
+        }
+        .oldest-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .oldest-item .info .bill {
+            font-weight: 700;
+            color: #1e293b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .oldest-item .info .meta {
+            color: #64748b;
+            font-size: 11.5px;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .oldest-item .days {
+            font-weight: 800;
+            font-size: 15px;
+            color: #dc2626;
+            white-space: nowrap;
+        }
+        .oldest-item .days small {
+            font-weight: 600;
+            font-size: 10px;
+            color: #94a3b8;
+            display: block;
+            text-align: right;
+        }
 
         /* Category pill */
         .cat-pill {
-            display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px;
-            font-size: 11.5px; font-weight: 700; white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            white-space: nowrap;
         }
-        .cat-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+        .cat-pill .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
 
         /* Report filter bar */
         .report-filterbar {
-            display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 14px;
-            background: #f8fafc; padding: 10px 14px; border-radius: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 14px;
+            background: #f8fafc;
+            padding: 10px 14px;
+            border-radius: 10px;
         }
-        .report-filterbar select, .report-filterbar input[type="text"] {
-            border: 1px solid #e2e8f0; background: white; border-radius: 7px; padding: 7px 10px; font-size: 12.5px;
-            color: #1e293b; outline: none;
+        .report-filterbar select,
+        .report-filterbar input[type="text"] {
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 7px;
+            padding: 7px 10px;
+            font-size: 12.5px;
+            color: #1e293b;
+            outline: none;
         }
-        .report-filterbar select:focus, .report-filterbar input:focus { border-color: #8b5cf6; }
-        .report-filterbar .rf-search { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid #e2e8f0; border-radius: 7px; padding: 0 10px; }
-        .report-filterbar .rf-search input { border: none; padding: 7px 0; }
-        .report-filterbar .rf-search i { color: #94a3b8; font-size: 12px; }
-        .report-filterbar .rf-clear { font-size: 12px; color: #8b5cf6; font-weight: 700; cursor: pointer; margin-left: auto; }
-        .report-filterbar .rf-clear:hover { text-decoration: underline; }
-        .report-table-row-flag td:first-child { box-shadow: inset 4px 0 0 var(--flag-color, transparent); }
+        .report-filterbar select:focus,
+        .report-filterbar input:focus {
+            border-color: #8b5cf6;
+        }
+        .report-filterbar .rf-search {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 7px;
+            padding: 0 10px;
+        }
+        .report-filterbar .rf-search input {
+            border: none;
+            padding: 7px 0;
+        }
+        .report-filterbar .rf-search i {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .report-filterbar .rf-clear {
+            font-size: 12px;
+            color: #8b5cf6;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: auto;
+        }
+        .report-filterbar .rf-clear:hover {
+            text-decoration: underline;
+        }
+        .report-table-row-flag td:first-child {
+            box-shadow: inset 4px 0 0 var(--flag-color, transparent);
+        }
 
-        .empty-report { text-align: center; padding: 50px 20px; color: #94a3b8; }
-        .empty-report i { font-size: 34px; margin-bottom: 10px; display: block; }
+        .empty-report {
+            text-align: center;
+            padding: 50px 20px;
+            color: #94a3b8;
+        }
+        .empty-report i {
+            font-size: 34px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* ── PRINT REPORT STYLES ── */
+        @media print {
+            body {
+                background: white !important;
+                padding: 8mm !important;
+                font-size: 11px !important;
+                color: #111 !important;
+            }
+            .app-header,
+            .tabs,
+            .tab-pane,
+            .toolbar,
+            .upload-zone,
+            .report-filterbar,
+            .report-subtabs,
+            .report-actions,
+            #btnPrintReport,
+            #btnExportReport,
+            .toast,
+            .no-print {
+                display: none !important;
+            }
+            .report-section {
+                display: block !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
+                background: white !important;
+            }
+            .report-subpane {
+                display: block !important;
+            }
+            .report-subpane:not(.active) {
+                display: none !important;
+            }
+            #subpane-overview {
+                display: block !important;
+            }
+            #subpane-table {
+                display: block !important;
+                page-break-before: always;
+            }
+            #subpane-division {
+                display: block !important;
+                page-break-before: always;
+            }
+            .kpi-card {
+                border: 1px solid #ddd !important;
+                background: #f9f9f9 !important;
+            }
+            .chart-card {
+                background: #f9f9f9 !important;
+                border: 1px solid #eee !important;
+            }
+            .table-wrap {
+                max-height: none !important;
+                overflow: visible !important;
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+            .table-wrap thead {
+                position: static !important;
+                background: #f0f0f0 !important;
+            }
+            .table-wrap th {
+                background: #f0f0f0 !important;
+                color: #111 !important;
+                border-bottom: 2px solid #aaa !important;
+            }
+            .table-wrap td {
+                border-bottom: 1px solid #e5e5e5 !important;
+            }
+            .bar-row .bar-track {
+                background: #e5e5e5 !important;
+            }
+            .oldest-item {
+                border: 1px solid #ddd !important;
+                background: #fafafa !important;
+            }
+            .cat-pill {
+                border: 1px solid #ccc !important;
+                background: #f0f0f0 !important;
+            }
+            .cat-pill .dot {
+                display: inline-block !important;
+            }
+            .report-topbar h2 {
+                font-size: 18px !important;
+            }
+            .kpi-row {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 8px !important;
+            }
+            .chart-grid {
+                grid-template-columns: 1.4fr 1fr !important;
+                gap: 12px !important;
+            }
+            .report-section .report-topbar .report-actions .btn {
+                display: none !important;
+            }
+            .report-topbar .as-of {
+                font-size: 11px !important;
+                color: #555 !important;
+            }
+            .print-title {
+                display: block !important;
+                text-align: center;
+                font-size: 22px;
+                font-weight: 800;
+                margin-bottom: 4px;
+                color: #1e293b;
+            }
+            .print-subtitle {
+                display: block !important;
+                text-align: center;
+                font-size: 14px;
+                color: #475569;
+                margin-bottom: 16px;
+                font-weight: 400;
+            }
+            .print-division-badge {
+                display: inline-block !important;
+                background: #8b5cf6;
+                color: white;
+                padding: 2px 16px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 700;
+                margin: 0 auto 12px auto;
+                text-align: center;
+            }
+            .print-section-title {
+                font-size: 16px;
+                font-weight: 700;
+                margin: 16px 0 10px 0;
+                padding-bottom: 4px;
+                border-bottom: 2px solid #8b5cf6;
+                color: #1e293b;
+            }
+            .print-stats-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+                margin: 12px 0 16px 0;
+            }
+            .print-stat-box {
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 10px 14px;
+                text-align: center;
+            }
+            .print-stat-box .num {
+                font-size: 22px;
+                font-weight: 800;
+                color: #1e293b;
+            }
+            .print-stat-box .label {
+                font-size: 10px;
+                text-transform: uppercase;
+                color: #64748b;
+                font-weight: 600;
+                letter-spacing: 0.3px;
+            }
+            .print-table-wrap {
+                margin-top: 6px;
+            }
+            .print-table-wrap table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 10px;
+            }
+            .print-table-wrap th {
+                background: #f0f0f0;
+                font-weight: 700;
+                padding: 6px 8px;
+                border: 1px solid #ccc;
+                text-align: left;
+            }
+            .print-table-wrap td {
+                padding: 5px 8px;
+                border: 1px solid #ddd;
+            }
+            .print-age-bar {
+                display: inline-block;
+                height: 10px;
+                border-radius: 4px;
+                margin-right: 4px;
+            }
+            .print-footer {
+                margin-top: 20px;
+                font-size: 10px;
+                color: #94a3b8;
+                text-align: center;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 12px;
+            }
+            .print-hidden {
+                display: none !important;
+            }
+            .bar-row .bar-seg {
+                cursor: default !important;
+            }
+            .kpi-card,
+            .legend-item,
+            .bar-seg,
+            .oldest-item {
+                cursor: default !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-badge {
+                display: inline-block !important;
+                background: #8b5cf6;
+                color: white;
+                padding: 0 14px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 700;
+                line-height: 24px;
+            }
+        }
+
+        /* print-only elements hidden by default */
+        .print-only {
+            display: none;
+        }
 
         @media (max-width: 900px) {
-            .chart-grid { grid-template-columns: 1fr; }
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
         }
         @media (max-width: 700px) {
-            body { padding: 12px; }
-            .app-header { flex-direction: column; align-items: stretch; }
-            .app-header h1 { font-size: 18px; }
-            .tabs { flex-direction: column; }
-            .tab-btn { border-radius: 6px; }
-            .toolbar { flex-wrap: wrap; }
-            .toolbar .search-box { margin-left: 0; width: 100%; }
-            .toolbar .search-box input { width: 100%; }
-            .table-wrap { max-height: 60vh; }
-            .table-wrap table { font-size: 12px; min-width: 600px; }
-            .table-wrap th, .table-wrap td { padding: 6px 10px; }
-            .kpi-row { grid-template-columns: repeat(2, 1fr); }
-            .report-filterbar { flex-direction: column; align-items: stretch; }
-            .report-filterbar .rf-clear { margin-left: 0; }
+            body {
+                padding: 12px;
+            }
+            .app-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .app-header h1 {
+                font-size: 18px;
+            }
+            .tabs {
+                flex-direction: column;
+            }
+            .tab-btn {
+                border-radius: 6px;
+            }
+            .toolbar {
+                flex-wrap: wrap;
+            }
+            .toolbar .search-box {
+                margin-left: 0;
+                width: 100%;
+            }
+            .toolbar .search-box input {
+                width: 100%;
+            }
+            .table-wrap {
+                max-height: 60vh;
+            }
+            .table-wrap table {
+                font-size: 12px;
+                min-width: 600px;
+            }
+            .table-wrap th,
+            .table-wrap td {
+                padding: 6px 10px;
+            }
+            .kpi-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .report-filterbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .report-filterbar .rf-clear {
+                margin-left: 0;
+            }
+        }
+
+        .btn-print {
+            background: #1e293b;
+            color: white;
+        }
+        .btn-print:hover {
+            background: #0f172a;
+        }
+        .btn-print i {
+            margin-right: 6px;
         }
     </style>
 </head>
 <body>
 
-<div class="app">
-    <header class="app-header">
-        <h1><i class="fas fa-layer-group"></i> E Bill Timelines PHED TINSUKIA</h1>
-        <span class="badge"><i class="far fa-file-excel"></i> SO / SDO / TC / AO / EE</span>
-    </header>
+    <div class="app">
+        <header class="app-header">
+            <h1><i class="fas fa-layer-group"></i> 5‑List XLS Merger</h1>
+            <span class="badge"><i class="far fa-file-excel"></i> SO / SDO / TC / AO / EE</span>
+        </header>
 
-    <div class="tabs" id="tabContainer">
-        <button class="tab-btn active" data-list="SO">SO Pending</button>
-        <button class="tab-btn" data-list="SDO">SDO Pending</button>
-        <button class="tab-btn" data-list="TC">TC Pending</button>
-        <button class="tab-btn" data-list="AO">AO Pending</button>
-        <button class="tab-btn" data-list="EE">EE Pending</button>
-    </div>
-
-    <div id="tabPanes"></div>
-
-    <div class="toolbar" id="toolbar">
-        <button class="btn btn-danger" id="btnClean" disabled><i class="fas fa-broom"></i> Clean</button>
-        <button class="btn btn-primary" id="btnReset" disabled><i class="fas fa-undo"></i> Reset</button>
-        <button class="btn btn-success" id="btnExport" disabled><i class="fas fa-download"></i> Export XLSX</button>
-        <button class="btn btn-report" id="btnGenerateReport" disabled><i class="fas fa-chart-line"></i> Generate Report</button>
-        <button class="btn" id="btnClearAll" disabled><i class="fas fa-times"></i> Clear All</button>
-        <span class="stats" id="stats">Rows: <strong>0</strong></span>
-        <div class="search-box">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Filter rows..." disabled />
+        <div class="tabs" id="tabContainer">
+            <button class="tab-btn active" data-list="SO">SO Pending</button>
+            <button class="tab-btn" data-list="SDO">SDO Pending</button>
+            <button class="tab-btn" data-list="TC">TC Pending</button>
+            <button class="tab-btn" data-list="AO">AO Pending</button>
+            <button class="tab-btn" data-list="EE">EE Pending</button>
         </div>
-    </div>
 
-    <div class="table-wrap" id="tableWrap">
-        <table>
-            <thead id="tableHead"></thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+        <div id="tabPanes"></div>
 
-    <div class="report-section" id="reportSection">
-        <div class="report-topbar">
-            <h2><i class="fas fa-clock"></i> Bill Timeline Report</h2>
-            <div class="report-actions">
-                <span class="as-of" id="asOfLabel"></span>
-                <button class="btn btn-success" id="btnExportReport" disabled><i class="fas fa-download"></i> Export XLSX</button>
+        <div class="toolbar" id="toolbar">
+            <button class="btn btn-danger" id="btnClean" disabled><i class="fas fa-broom"></i> Clean</button>
+            <button class="btn btn-primary" id="btnReset" disabled><i class="fas fa-undo"></i> Reset</button>
+            <button class="btn btn-success" id="btnExport" disabled><i class="fas fa-download"></i> Export XLSX</button>
+            <button class="btn btn-report" id="btnGenerateReport" disabled><i class="fas fa-chart-line"></i> Generate Report</button>
+            <button class="btn" id="btnClearAll" disabled><i class="fas fa-times"></i> Clear All</button>
+            <span class="stats" id="stats">Rows: <strong>0</strong></span>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Filter rows..." disabled />
             </div>
         </div>
 
-        <div class="report-subtabs" id="reportSubtabs">
-            <button class="report-subtab-btn active" data-sub="overview"><i class="fas fa-chart-pie"></i> Overview</button>
-            <button class="report-subtab-btn" data-sub="table"><i class="fas fa-table"></i> Table</button>
-            <button class="report-subtab-btn" data-sub="division"><i class="fas fa-map"></i> By Division</button>
+        <div class="table-wrap" id="tableWrap">
+            <table>
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
         </div>
 
-        <!-- OVERVIEW -->
-        <div class="report-subpane active" id="subpane-overview">
-            <div class="kpi-row" id="kpiRow"></div>
-            <div class="chart-grid">
-                <div class="chart-card">
-                    <h3><i class="fas fa-layer-group"></i> Pending level × age</h3>
-                    <div id="stackedBars"></div>
-                    <div class="legend" id="chartLegend"></div>
-                </div>
-                <div class="chart-card">
-                    <h3><i class="fas fa-fire"></i> Oldest pending bills</h3>
-                    <div class="oldest-list" id="oldestList"></div>
+        <div class="report-section" id="reportSection">
+            <div class="report-topbar">
+                <h2><i class="fas fa-clock"></i> Bill Timeline Report</h2>
+                <div class="report-actions">
+                    <span class="as-of" id="asOfLabel"></span>
+                    <button class="btn btn-print" id="btnPrintReport" disabled><i class="fas fa-print"></i> Print Report</button>
+                    <button class="btn btn-success" id="btnExportReport" disabled><i class="fas fa-download"></i> Export XLSX</button>
                 </div>
             </div>
-        </div>
 
-        <!-- TABLE -->
-        <div class="report-subpane" id="subpane-table">
-            <div class="report-filterbar" id="reportFilterbar">
-                <div class="rf-search"><i class="fas fa-search"></i><input type="text" id="reportSearch" placeholder="Search bill / scheme / division..."/></div>
-                <select id="rfLevel"><option value="">All levels</option></select>
-                <select id="rfCategory"><option value="">All ages</option></select>
-                <select id="rfBillType"><option value="">All bill types</option></select>
-                <span class="rf-clear" id="rfClear">Clear filters</span>
+            <div class="report-subtabs" id="reportSubtabs">
+                <button class="report-subtab-btn active" data-sub="overview"><i class="fas fa-chart-pie"></i> Overview</button>
+                <button class="report-subtab-btn" data-sub="table"><i class="fas fa-table"></i> Table</button>
+                <button class="report-subtab-btn" data-sub="division"><i class="fas fa-map"></i> By Division</button>
             </div>
-            <div class="table-wrap" style="max-height:440px;">
-                <table>
-                    <thead id="reportHead"></thead>
-                    <tbody id="reportBody"></tbody>
-                </table>
-            </div>
-        </div>
 
-        <!-- BY DIVISION -->
-        <div class="report-subpane" id="subpane-division">
-            <div class="table-wrap" style="max-height:440px;">
-                <table>
-                    <thead id="divisionHead"></thead>
-                    <tbody id="divisionBody"></tbody>
-                </table>
+            <!-- OVERVIEW -->
+            <div class="report-subpane active" id="subpane-overview">
+                <div class="kpi-row" id="kpiRow"></div>
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-layer-group"></i> Pending level × age</h3>
+                        <div id="stackedBars"></div>
+                        <div class="legend" id="chartLegend"></div>
+                    </div>
+                    <div class="chart-card">
+                        <h3><i class="fas fa-fire"></i> Oldest pending bills</h3>
+                        <div class="oldest-list" id="oldestList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLE -->
+            <div class="report-subpane" id="subpane-table">
+                <div class="report-filterbar" id="reportFilterbar">
+                    <div class="rf-search"><i class="fas fa-search"></i><input type="text" id="reportSearch" placeholder="Search bill / scheme / division..." /></div>
+                    <select id="rfLevel"><option value="">All levels</option></select>
+                    <select id="rfCategory"><option value="">All ages</option></select>
+                    <select id="rfBillType"><option value="">All bill types</option></select>
+                    <span class="rf-clear" id="rfClear">Clear filters</span>
+                </div>
+                <div class="table-wrap" style="max-height:440px;">
+                    <table>
+                        <thead id="reportHead"></thead>
+                        <tbody id="reportBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BY DIVISION -->
+            <div class="report-subpane" id="subpane-division">
+                <div class="table-wrap" style="max-height:440px;">
+                    <table>
+                        <thead id="divisionHead"></thead>
+                        <tbody id="divisionBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Done</span></div>
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Done</span></div>
 
-<script>
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // STATE
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    const LIST_TYPES = ['SO', 'SDO', 'TC', 'AO', 'EE'];
-    const listData = {};
-    LIST_TYPES.forEach(lt => listData[lt] = { fileName: null, rows: [] });
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const LIST_TYPES = ['SO', 'SDO', 'TC', 'AO', 'EE'];
+        const listData = {};
+        LIST_TYPES.forEach(lt => listData[lt] = { fileName: null, rows: [] });
 
-    let masterHeaders = [];
-    let combinedRows = [];
-    let cleanedRows = [];
-    let sortCol = null;
-    let sortDir = 1;
-    let filterText = '';
-    let reportData = [];
+        let masterHeaders = [];
+        let combinedRows = [];
+        let cleanedRows = [];
+        let sortCol = null;
+        let sortDir = 1;
+        let filterText = '';
+        let reportData = [];
 
-    const tabContainer = document.getElementById('tabContainer');
-    const tabPanes = document.getElementById('tabPanes');
-    const btnClean = document.getElementById('btnClean');
-    const btnReset = document.getElementById('btnReset');
-    const btnExport = document.getElementById('btnExport');
-    const btnClearAll = document.getElementById('btnClearAll');
-    const btnGenerateReport = document.getElementById('btnGenerateReport');
-    const btnExportReport = document.getElementById('btnExportReport');
-    const stats = document.getElementById('stats');
-    const searchInput = document.getElementById('searchInput');
-    const tableHead = document.getElementById('tableHead');
-    const tableBody = document.getElementById('tableBody');
-    const reportSection = document.getElementById('reportSection');
-    const reportHead = document.getElementById('reportHead');
-    const reportBody = document.getElementById('reportBody');
-    const toast = document.getElementById('toast');
-    const toastMsg = document.getElementById('toastMsg');
+        const tabContainer = document.getElementById('tabContainer');
+        const tabPanes = document.getElementById('tabPanes');
+        const btnClean = document.getElementById('btnClean');
+        const btnReset = document.getElementById('btnReset');
+        const btnExport = document.getElementById('btnExport');
+        const btnClearAll = document.getElementById('btnClearAll');
+        const btnGenerateReport = document.getElementById('btnGenerateReport');
+        const btnExportReport = document.getElementById('btnExportReport');
+        const btnPrintReport = document.getElementById('btnPrintReport');
+        const stats = document.getElementById('stats');
+        const searchInput = document.getElementById('searchInput');
+        const tableHead = document.getElementById('tableHead');
+        const tableBody = document.getElementById('tableBody');
+        const reportSection = document.getElementById('reportSection');
+        const reportHead = document.getElementById('reportHead');
+        const reportBody = document.getElementById('reportBody');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
 
-    let toastTimer = null;
-    function showToast(msg, icon = 'fa-check-circle', color = '#1e293b') {
-        toastMsg.textContent = msg;
-        toast.querySelector('i').className = `fas ${icon}`;
-        toast.style.background = color;
-        toast.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
-    }
+        let toastTimer = null;
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // BUILD TABS
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function buildTabs() {
-        tabPanes.innerHTML = '';
-        LIST_TYPES.forEach((lt, idx) => {
-            const pane = document.createElement('div');
-            pane.className = `tab-pane${idx === 0 ? ' active' : ''}`;
-            pane.dataset.list = lt;
-            pane.innerHTML = `
-                <div class="upload-zone" data-list="${lt}">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <h4>Upload ${lt} Pending List</h4>
-                    <p>Click or drag &amp; drop .xls / .xlsx</p>
-                    <input type="file" accept=".xls,.xlsx" data-list="${lt}" />
-                    <div class="file-status" id="status-${lt}">No file uploaded</div>
-                </div>
-            `;
-            tabPanes.appendChild(pane);
-        });
+        function showToast(msg, icon = 'fa-check-circle', color = '#1e293b') {
+            toastMsg.textContent = msg;
+            toast.querySelector('i').className = `fas ${icon}`;
+            toast.style.background = color;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
 
-        document.querySelectorAll('.upload-zone').forEach(zone => {
-            const list = zone.dataset.list;
-            const input = zone.querySelector('input[type="file"]');
-            const status = document.getElementById(`status-${list}`);
-
-            zone.addEventListener('click', (e) => {
-                if (e.target.tagName !== 'INPUT') input.click();
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // BUILD TABS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function buildTabs() {
+            tabPanes.innerHTML = '';
+            LIST_TYPES.forEach((lt, idx) => {
+                const pane = document.createElement('div');
+                pane.className = `tab-pane${idx === 0 ? ' active' : ''}`;
+                pane.dataset.list = lt;
+                pane.innerHTML = `
+                        <div class="upload-zone" data-list="${lt}">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <h4>Upload ${lt} Pending List</h4>
+                            <p>Click or drag &amp; drop .xls / .xlsx</p>
+                            <input type="file" accept=".xls,.xlsx" data-list="${lt}" />
+                            <div class="file-status" id="status-${lt}">No file uploaded</div>
+                        </div>
+                    `;
+                tabPanes.appendChild(pane);
             });
-            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
-            zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-            zone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                zone.classList.remove('dragover');
-                if (e.dataTransfer.files.length) {
-                    input.files = e.dataTransfer.files;
-                    handleFileUpload(list, e.dataTransfer.files[0], status, input);
-                }
-            });
-            input.addEventListener('change', () => {
-                if (input.files.length) {
-                    handleFileUpload(list, input.files[0], status, input);
-                }
-            });
-        });
 
-        tabContainer.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                tabContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const list = btn.dataset.list;
-                tabPanes.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-                tabPanes.querySelector(`.tab-pane[data-list="${list}"]`).classList.add('active');
-            });
-        });
-    }
-    buildTabs();
+            document.querySelectorAll('.upload-zone').forEach(zone => {
+                const list = zone.dataset.list;
+                const input = zone.querySelector('input[type="file"]');
+                const status = document.getElementById(`status-${list}`);
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // DATE PARSING (FIXED: 0000-00-00 → null)
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function formatDateToStr(date) {
-        if (!(date instanceof Date) || isNaN(date)) return String(date);
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
-    }
-
-    function parseDateFromString(str) {
-        if (!str) return null;
-        const s = String(str).trim();
-
-        // ── FIX: reject "0000-00-00" and year 0 ──
-        if (s.includes('0000-00-00') || s.includes('00-00-0000') || s.includes('0000/00/00')) {
-            return null;
-        }
-
-        // Try dd/mm/yyyy or dd-mm-yyyy
-        let m = s.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
-        if (m) {
-            let day = parseInt(m[1]), month = parseInt(m[2]) - 1, year = parseInt(m[3]);
-            // If year is 0 → invalid
-            if (year === 0) return null;
-            // If day > 12, it's likely dd/mm; otherwise try both orders
-            if (day > 12) {
-                const d = new Date(year, month, day);
-                if (!isNaN(d) && d.getFullYear() === year) return d;
-            } else {
-                // try dd/mm and mm/dd
-                const d1 = new Date(year, parseInt(m[1]) - 1, parseInt(m[2]));
-                const d2 = new Date(year, parseInt(m[2]) - 1, parseInt(m[1]));
-                if (!isNaN(d1) && d1.getFullYear() === year && d1.getDate() === parseInt(m[2])) return d1;
-                if (!isNaN(d2) && d2.getFullYear() === year && d2.getDate() === parseInt(m[1])) return d2;
-                return null;
-            }
-            return null;
-        }
-
-        // Try yyyy-mm-dd or yyyy/mm/dd
-        m = s.match(/(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
-        if (m) {
-            const year = parseInt(m[1]);
-            if (year === 0) return null;
-            const d = new Date(year, parseInt(m[2]) - 1, parseInt(m[3]));
-            if (!isNaN(d) && d.getFullYear() === year) return d;
-            return null;
-        }
-
-        // Try Excel serial number (only if it looks like a number)
-        const num = parseFloat(s);
-        if (!isNaN(num) && num > 30000 && num < 50000) {
-            const epoch = new Date(1900, 0, 1);
-            const d = new Date(epoch.getTime() + (num - 2) * 86400000);
-            if (!isNaN(d) && d.getFullYear() > 1900 && d.getFullYear() < 2100) {
-                return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-            }
-        }
-
-        return null;
-    }
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // FILE HANDLING
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function handleFileUpload(listType, file, statusEl, inputEl) {
-        const ext = file.name.split('.').pop().toLowerCase();
-        if (!['xls', 'xlsx'].includes(ext)) {
-            showToast(`"${file.name}" is not an Excel file.`, 'fa-exclamation-triangle', '#dc2626');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
-                if (!json || json.length === 0) {
-                    showToast(`"${file.name}" is empty.`, 'fa-exclamation-triangle', '#dc2626');
-                    return;
-                }
-
-                let headerRowIdx = 0;
-                for (let i = 0; i < Math.min(json.length, 10); i++) {
-                    const row = json[i];
-                    if (row && row.length > 0 && row.some(c => String(c).trim().length > 0)) {
-                        const hasHeader = row.some(c => {
-                            const s = String(c).trim().toUpperCase();
-                            return ['SL', 'DIVISION', 'SCHEME', 'BILL NO', 'DATE', 'VIEW'].includes(s);
-                        });
-                        if (hasHeader) { headerRowIdx = i; break; }
+                zone.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') input.click();
+                });
+                zone.addEventListener('dragover', (e) => { e.preventDefault();
+                    zone.classList.add('dragover'); });
+                zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('dragover');
+                    if (e.dataTransfer.files.length) {
+                        input.files = e.dataTransfer.files;
+                        handleFileUpload(list, e.dataTransfer.files[0], status, input);
                     }
-                }
-
-                let fileHeaders = json[headerRowIdx] ? json[headerRowIdx].map(c => String(c).trim()) : [];
-                fileHeaders = fileHeaders.map(h => h || `Col_${fileHeaders.indexOf(h)}`);
-
-                if (masterHeaders.length === 0 && fileHeaders.length > 0) {
-                    masterHeaders = fileHeaders.slice();
-                }
-
-                const rows = [];
-                for (let i = headerRowIdx + 1; i < json.length; i++) {
-                    let row = json[i];
-                    if (!row || row.length === 0) continue;
-                    while (row.length < fileHeaders.length) row.push('');
-                    const formattedRow = row.slice(0, fileHeaders.length).map(cell => {
-                        if (cell instanceof Date) return formatDateToStr(cell);
-                        return String(cell);
-                    });
-                    rows.push(formattedRow);
-                }
-
-                listData[listType].fileName = file.name;
-                listData[listType].rows = rows;
-                statusEl.textContent = `✅ ${file.name} (${rows.length} rows)`;
-
-                rebuildCombinedData();
-                enableControls();
-                renderTable();
-                reportSection.style.display = 'none';
-                showToast(`Loaded ${rows.length} rows from "${file.name}" (${listType})`, 'fa-check-circle', '#16a34a');
-
-            } catch (err) {
-                console.error(err);
-                showToast(`Error parsing "${file.name}": ${err.message}`, 'fa-exclamation-triangle', '#dc2626');
-            }
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // REBUILD & RENDER (main merged table)
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function rebuildCombinedData() {
-        combinedRows = [];
-        LIST_TYPES.forEach(lt => {
-            const { fileName, rows } = listData[lt];
-            if (!fileName || rows.length === 0) return;
-            rows.forEach(row => {
-                const paddedRow = row.slice();
-                while (paddedRow.length < masterHeaders.length) paddedRow.push('');
-                combinedRows.push([lt, fileName, ...paddedRow.slice(0, masterHeaders.length)]);
+                });
+                input.addEventListener('change', () => {
+                    if (input.files.length) {
+                        handleFileUpload(list, input.files[0], status, input);
+                    }
+                });
             });
-        });
-        cleanedRows = combinedRows.filter(row => row.slice(2).some(cell => String(cell).trim().length > 0));
-    }
 
-    function renderTable() {
-        const displayHeaders = ['List', 'Source File', ...masterHeaders];
-        let displayData = cleanedRows;
-        if (filterText.trim()) {
-            const ft = filterText.trim().toLowerCase();
-            displayData = cleanedRows.filter(row =>
-                row.some(cell => String(cell).toLowerCase().includes(ft))
-            );
-        }
-        if (sortCol !== null && sortCol >= 0 && sortCol < displayHeaders.length) {
-            displayData = [...displayData].sort((a, b) => {
-                const va = String(a[sortCol] || '').toLowerCase();
-                const vb = String(b[sortCol] || '').toLowerCase();
-                if (va < vb) return -sortDir;
-                if (va > vb) return sortDir;
-                return 0;
+            tabContainer.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabContainer.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const list = btn.dataset.list;
+                    tabPanes.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                    tabPanes.querySelector(`.tab-pane[data-list="${list}"]`).classList.add('active');
+                });
             });
         }
+        buildTabs();
 
-        let theadHtml = '<tr>';
-        displayHeaders.forEach((h, idx) => {
-            const isSorted = sortCol === idx;
-            const cls = isSorted ? (sortDir === 1 ? 'sorted-asc' : 'sorted-desc') : '';
-            const arrow = isSorted ? (sortDir === 1 ? '↑' : '↓') : '⇅';
-            theadHtml += `<th class="${cls}" data-col="${idx}">${h || '—'} <i class="fas fa-sort${isSorted ? '' : ''}" style="font-size:10px;">${arrow}</i></th>`;
-        });
-        theadHtml += '</tr>';
-        tableHead.innerHTML = theadHtml;
-
-        tableHead.querySelectorAll('th').forEach(th => {
-            th.addEventListener('click', () => {
-                const idx = parseInt(th.dataset.col);
-                if (sortCol === idx) sortDir *= -1;
-                else { sortCol = idx; sortDir = 1; }
-                renderTable();
-            });
-        });
-
-        if (displayData.length === 0) {
-            const colCount = displayHeaders.length || 1;
-            tableBody.innerHTML = `<tr><td colspan="${colCount}" class="empty-row">No rows to display. Upload files in the tabs above.</td></tr>`;
-            stats.innerHTML = `Rows: <strong>0</strong>`;
-            return;
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // DATE PARSING (FIXED: 0000-00-00 → null)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function formatDateToStr(date) {
+            if (!(date instanceof Date) || isNaN(date)) return String(date);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
 
-        let bodyHtml = '';
-        displayData.forEach((row) => {
-            bodyHtml += '<tr>';
-            row.forEach((cell) => {
-                const val = String(cell || '');
-                const displayVal = val.length > 120 ? val.slice(0, 120) + '…' : val;
-                bodyHtml += `<td title="${val.replace(/"/g, '&quot;')}">${displayVal || '—'}</td>`;
-            });
-            bodyHtml += '</tr>';
-        });
-        tableBody.innerHTML = bodyHtml;
+        function parseDateFromString(str) {
+            if (!str) return null;
+            const s = String(str).trim();
 
-        const total = cleanedRows.length;
-        const shown = displayData.length;
-        stats.innerHTML = `Rows: <strong>${shown}</strong>${shown !== total ? ` (filtered from ${total})` : ''}`;
-    }
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // CONTROLS
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    function enableControls() {
-        const hasData = combinedRows.length > 0;
-        btnClean.disabled = !hasData;
-        btnReset.disabled = !hasData;
-        btnExport.disabled = !hasData;
-        btnClearAll.disabled = !hasData;
-        btnGenerateReport.disabled = !hasData;
-        searchInput.disabled = !hasData;
-        if (hasData) searchInput.placeholder = 'Filter rows...';
-    }
-
-    function cleanRows() {
-        if (cleanedRows.length === 0) {
-            showToast('No data to clean.', 'fa-exclamation-triangle', '#dc2626');
-            return;
-        }
-        const before = cleanedRows.length;
-        cleanedRows = cleanedRows.filter(row => row.slice(2).some(cell => String(cell).trim().length > 0));
-        const removed = before - cleanedRows.length;
-        sortCol = null;
-        sortDir = 1;
-        filterText = '';
-        searchInput.value = '';
-        renderTable();
-        reportSection.style.display = 'none';
-        showToast(`Removed ${removed} empty row${removed > 1 ? 's' : ''}. ${cleanedRows.length} rows remain.`, 'fa-broom', '#2563eb');
-    }
-
-    function resetData() {
-        if (combinedRows.length === 0) {
-            showToast('No original data to restore.', 'fa-exclamation-triangle', '#dc2626');
-            return;
-        }
-        cleanedRows = combinedRows.filter(row => row.slice(2).some(c => String(c).trim().length > 0));
-        sortCol = null;
-        sortDir = 1;
-        filterText = '';
-        searchInput.value = '';
-        renderTable();
-        reportSection.style.display = 'none';
-        showToast(`Reset to ${cleanedRows.length} rows.`, 'fa-undo', '#2563eb');
-    }
-
-    function clearAll() {
-        LIST_TYPES.forEach(lt => {
-            listData[lt] = { fileName: null, rows: [] };
-            const status = document.getElementById(`status-${lt}`);
-            if (status) status.textContent = 'No file uploaded';
-            const input = document.querySelector(`.tab-pane[data-list="${lt}"] input[type="file"]`);
-            if (input) input.value = '';
-        });
-        masterHeaders = [];
-        combinedRows = [];
-        cleanedRows = [];
-        sortCol = null;
-        sortDir = 1;
-        filterText = '';
-        searchInput.value = '';
-        enableControls();
-        renderTable();
-        reportSection.style.display = 'none';
-        tableBody.innerHTML = `<tr><td colspan="2" class="empty-row">Upload files in the tabs above.</td></tr>`;
-        stats.innerHTML = `Rows: <strong>0</strong>`;
-        showToast('All files cleared.', 'fa-times', '#475569');
-    }
-
-    function exportData() {
-        if (cleanedRows.length === 0) {
-            showToast('No data to export.', 'fa-exclamation-triangle', '#dc2626');
-            return;
-        }
-        let exportRows = cleanedRows;
-        if (filterText.trim()) {
-            const ft = filterText.trim().toLowerCase();
-            exportRows = cleanedRows.filter(row =>
-                row.some(cell => String(cell).toLowerCase().includes(ft))
-            );
-        }
-        if (sortCol !== null && sortCol >= 0 && sortCol < (['List', 'Source File', ...masterHeaders].length)) {
-            exportRows = [...exportRows].sort((a, b) => {
-                const va = String(a[sortCol] || '').toLowerCase();
-                const vb = String(b[sortCol] || '').toLowerCase();
-                if (va < vb) return -sortDir;
-                if (va > vb) return sortDir;
-                return 0;
-            });
-        }
-        const displayHeaders = ['List', 'Source File', ...masterHeaders];
-        const wsData = [displayHeaders, ...exportRows];
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Merged');
-        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([wbout], { type: 'application/octet-stream' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `merged_${new Date().toISOString().slice(0,10)}.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast(`Exported ${exportRows.length} rows.`, 'fa-download', '#16a34a');
-    }
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // REPORT GENERATION (data layer — unchanged logic)
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    const LEVEL_ORDER = ['TPIA', 'SO', 'SDO', 'TC', 'AO', 'EE'];
-    const CATEGORY_ORDER = ['<30 days', '1 to 3 months', '3 to 6 months', '6 to 12 months', '> 1 Year', 'Unknown'];
-    const CATEGORY_COLORS = {
-        '<30 days': '#16a34a',
-        '1 to 3 months': '#2563eb',
-        '3 to 6 months': '#f59e0b',
-        '6 to 12 months': '#ea580c',
-        '> 1 Year': '#dc2626',
-        'Unknown': '#94a3b8'
-    };
-
-    function getColumnIndex(headers, name) {
-        return headers.findIndex(h => h.trim().toUpperCase() === name.toUpperCase());
-    }
-
-    function generateReport() {
-        if (cleanedRows.length === 0) {
-            showToast('No data to generate report. Upload files first.', 'fa-exclamation-triangle', '#dc2626');
-            return;
-        }
-
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const displayHeaders = ['List', 'Source File', ...masterHeaders];
-        const colMap = {};
-        displayHeaders.forEach((h, idx) => colMap[h] = idx);
-
-        const dateCol = 'DATE';
-        const tpiReportCol = 'TPI Report';
-        const soApprovalCol = 'SO Approval';
-        const sdoApprovalCol = 'SDO Approval';
-        const tcApprovalCol = 'TC Approval';
-        const aoApprovalCol = 'AO Approval';
-        const billNoCol = 'BILL NO';
-        const schemeCol = 'Scheme';
-        const divisionCol = 'Division';
-
-        function getDateFromCell(cell) {
-            if (cell instanceof Date && !isNaN(cell)) {
-                const d = new Date(cell.getFullYear(), cell.getMonth(), cell.getDate());
-                if (d.getFullYear() > 1900 && d.getFullYear() < 2100) return d;
+            if (s.includes('0000-00-00') || s.includes('00-00-0000') || s.includes('0000/00/00')) {
                 return null;
             }
-            if (typeof cell === 'string') {
-                const d = parseDateFromString(cell);
-                if (d && !isNaN(d) && d.getFullYear() > 1900 && d.getFullYear() < 2100) {
+
+            let m = s.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+            if (m) {
+                let day = parseInt(m[1]),
+                    month = parseInt(m[2]) - 1,
+                    year = parseInt(m[3]);
+                if (year === 0) return null;
+                if (day > 12) {
+                    const d = new Date(year, month, day);
+                    if (!isNaN(d) && d.getFullYear() === year) return d;
+                } else {
+                    const d1 = new Date(year, parseInt(m[1]) - 1, parseInt(m[2]));
+                    const d2 = new Date(year, parseInt(m[2]) - 1, parseInt(m[1]));
+                    if (!isNaN(d1) && d1.getFullYear() === year && d1.getDate() === parseInt(m[2])) return d1;
+                    if (!isNaN(d2) && d2.getFullYear() === year && d2.getDate() === parseInt(m[1])) return d2;
+                    return null;
+                }
+                return null;
+            }
+
+            m = s.match(/(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
+            if (m) {
+                const year = parseInt(m[1]);
+                if (year === 0) return null;
+                const d = new Date(year, parseInt(m[2]) - 1, parseInt(m[3]));
+                if (!isNaN(d) && d.getFullYear() === year) return d;
+                return null;
+            }
+
+            const num = parseFloat(s);
+            if (!isNaN(num) && num > 30000 && num < 50000) {
+                const epoch = new Date(1900, 0, 1);
+                const d = new Date(epoch.getTime() + (num - 2) * 86400000);
+                if (!isNaN(d) && d.getFullYear() > 1900 && d.getFullYear() < 2100) {
                     return new Date(d.getFullYear(), d.getMonth(), d.getDate());
                 }
-                return null;
             }
+
             return null;
         }
 
-        function getPendingDays(dateObj) {
-            if (!dateObj) return null;
-            const diff = today.getTime() - dateObj.getTime();
-            if (diff < 0) return 0; // future dates → 0 days pending
-            return Math.floor(diff / (1000 * 60 * 60 * 24));
-        }
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // FILE HANDLING
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function handleFileUpload(listType, file, statusEl, inputEl) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['xls', 'xlsx'].includes(ext)) {
+                showToast(`"${file.name}" is not an Excel file.`, 'fa-exclamation-triangle', '#dc2626');
+                return;
+            }
 
-        function categorizeDays(days) {
-            if (days === null || days === undefined) return 'Unknown';
-            if (days < 30) return '<30 days';
-            else if (days >= 30 && days < 90) return '1 to 3 months';
-            else if (days >= 90 && days < 180) return '3 to 6 months';
-            else if (days >= 180 && days < 365) return '6 to 12 months';
-            else return '> 1 Year';
-        }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+                    if (!json || json.length === 0) {
+                        showToast(`"${file.name}" is empty.`, 'fa-exclamation-triangle', '#dc2626');
+                        return;
+                    }
 
-        function getBillType(billNo) {
-            if (!billNo) return 'Unknown';
-            const s = String(billNo).toUpperCase();
-            if (s.includes('FINAL BILL')) return 'Final Bill';
-            else if (s.includes('RA')) return 'Running Bill';
-            else return 'Other';
-        }
+                    let headerRowIdx = 0;
+                    for (let i = 0; i < Math.min(json.length, 10); i++) {
+                        const row = json[i];
+                        if (row && row.length > 0 && row.some(c => String(c).trim().length > 0)) {
+                            const hasHeader = row.some(c => {
+                                const s = String(c).trim().toUpperCase();
+                                return ['SL', 'DIVISION', 'SCHEME', 'BILL NO', 'DATE', 'VIEW'].includes(s);
+                            });
+                            if (hasHeader) { headerRowIdx = i; break; }
+                        }
+                    }
 
-        reportData = [];
-        for (const row of cleanedRows) {
-            const list = row[colMap['List']] || '';
-            const getVal = (colName) => {
-                const idx = colMap[colName];
-                return idx !== undefined ? row[idx] : '';
+                    let fileHeaders = json[headerRowIdx] ? json[headerRowIdx].map(c => String(c).trim()) : [];
+                    fileHeaders = fileHeaders.map(h => h || `Col_${fileHeaders.indexOf(h)}`);
+
+                    if (masterHeaders.length === 0 && fileHeaders.length > 0) {
+                        masterHeaders = fileHeaders.slice();
+                    }
+
+                    const rows = [];
+                    for (let i = headerRowIdx + 1; i < json.length; i++) {
+                        let row = json[i];
+                        if (!row || row.length === 0) continue;
+                        while (row.length < fileHeaders.length) row.push('');
+                        const formattedRow = row.slice(0, fileHeaders.length).map(cell => {
+                            if (cell instanceof Date) return formatDateToStr(cell);
+                            return String(cell);
+                        });
+                        rows.push(formattedRow);
+                    }
+
+                    listData[listType].fileName = file.name;
+                    listData[listType].rows = rows;
+                    statusEl.textContent = `✅ ${file.name} (${rows.length} rows)`;
+
+                    rebuildCombinedData();
+                    enableControls();
+                    renderTable();
+                    reportSection.style.display = 'none';
+                    showToast(`Loaded ${rows.length} rows from "${file.name}" (${listType})`, 'fa-check-circle', '#16a34a');
+
+                } catch (err) {
+                    console.error(err);
+                    showToast(`Error parsing "${file.name}": ${err.message}`, 'fa-exclamation-triangle', '#dc2626');
+                }
             };
+            reader.readAsArrayBuffer(file);
+        }
 
-            const billNo = getVal(billNoCol);
-            const scheme = getVal(schemeCol);
-            const division = getVal(divisionCol);
-            const billType = getBillType(billNo);
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // REBUILD & RENDER (main merged table)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function rebuildCombinedData() {
+            combinedRows = [];
+            LIST_TYPES.forEach(lt => {
+                const { fileName, rows } = listData[lt];
+                if (!fileName || rows.length === 0) return;
+                rows.forEach(row => {
+                    const paddedRow = row.slice();
+                    while (paddedRow.length < masterHeaders.length) paddedRow.push('');
+                    combinedRows.push([lt, fileName, ...paddedRow.slice(0, masterHeaders.length)]);
+                });
+            });
+            cleanedRows = combinedRows.filter(row => row.slice(2).some(cell => String(cell).trim().length > 0));
+        }
 
-            let pendingLevel = null;
-            let dateObj = null;
-
-            if (list === 'SO') {
-                const tpiVal = getVal(tpiReportCol);
-                const dateVal = getVal(dateCol);
-                if (tpiVal && typeof tpiVal === 'string' && tpiVal.toLowerCase().includes('pending')) {
-                    pendingLevel = 'TPIA';
-                    dateObj = getDateFromCell(dateVal);
-                } else {
-                    pendingLevel = 'SO';
-                    // Try to extract date from TPI Report column
-                    dateObj = getDateFromCell(tpiVal);
-                }
-            } else if (list === 'SDO') {
-                pendingLevel = 'SDO';
-                dateObj = getDateFromCell(getVal(soApprovalCol));
-            } else if (list === 'TC') {
-                pendingLevel = 'TC';
-                dateObj = getDateFromCell(getVal(sdoApprovalCol));
-            } else if (list === 'AO') {
-                pendingLevel = 'AO';
-                dateObj = getDateFromCell(getVal(tcApprovalCol));
-            } else if (list === 'EE') {
-                pendingLevel = 'EE';
-                dateObj = getDateFromCell(getVal(aoApprovalCol));
+        function renderTable() {
+            const displayHeaders = ['List', 'Source File', ...masterHeaders];
+            let displayData = cleanedRows;
+            if (filterText.trim()) {
+                const ft = filterText.trim().toLowerCase();
+                displayData = cleanedRows.filter(row =>
+                    row.some(cell => String(cell).toLowerCase().includes(ft))
+                );
+            }
+            if (sortCol !== null && sortCol >= 0 && sortCol < displayHeaders.length) {
+                displayData = [...displayData].sort((a, b) => {
+                    const va = String(a[sortCol] || '').toLowerCase();
+                    const vb = String(b[sortCol] || '').toLowerCase();
+                    if (va < vb) return -sortDir;
+                    if (va > vb) return sortDir;
+                    return 0;
+                });
             }
 
-            let pendingDays = null;
-            let pendingCategory = 'Unknown';
-            if (pendingLevel && dateObj) {
-                pendingDays = getPendingDays(dateObj);
-                pendingCategory = categorizeDays(pendingDays);
+            let theadHtml = '<tr>';
+            displayHeaders.forEach((h, idx) => {
+                const isSorted = sortCol === idx;
+                const cls = isSorted ? (sortDir === 1 ? 'sorted-asc' : 'sorted-desc') : '';
+                const arrow = isSorted ? (sortDir === 1 ? '↑' : '↓') : '⇅';
+                theadHtml += `<th class="${cls}" data-col="${idx}">${h || '—'} <i class="fas fa-sort${isSorted ? '' : ''}" style="font-size:10px;">${arrow}</i></th>`;
+            });
+            theadHtml += '</tr>';
+            tableHead.innerHTML = theadHtml;
+
+            tableHead.querySelectorAll('th').forEach(th => {
+                th.addEventListener('click', () => {
+                    const idx = parseInt(th.dataset.col);
+                    if (sortCol === idx) sortDir *= -1;
+                    else { sortCol = idx;
+                        sortDir = 1; }
+                    renderTable();
+                });
+            });
+
+            if (displayData.length === 0) {
+                const colCount = displayHeaders.length || 1;
+                tableBody.innerHTML =
+                    `<tr><td colspan="${colCount}" class="empty-row">No rows to display. Upload files in the tabs above.</td></tr>`;
+                stats.innerHTML = `Rows: <strong>0</strong>`;
+                return;
             }
 
-            reportData.push({ billNo, scheme, division, billType, pendingLevel, pendingDays, pendingCategory });
+            let bodyHtml = '';
+            displayData.forEach((row) => {
+                bodyHtml += '<tr>';
+                row.forEach((cell) => {
+                    const val = String(cell || '');
+                    const displayVal = val.length > 120 ? val.slice(0, 120) + '…' : val;
+                    bodyHtml += `<td title="${val.replace(/"/g, '&quot;')}">${displayVal || '—'}</td>`;
+                });
+                bodyHtml += '</tr>';
+            });
+            tableBody.innerHTML = bodyHtml;
+
+            const total = cleanedRows.length;
+            const shown = displayData.length;
+            stats.innerHTML = `Rows: <strong>${shown}</strong>${shown !== total ? ` (filtered from ${total})` : ''}`;
         }
 
-        // reset report UI state
-        reportSortCol = null; reportSortDir = 1;
-        reportFilterText = ''; reportFilterLevel = ''; reportFilterCategory = ''; reportFilterBillType = '';
-        document.getElementById('reportSearch').value = '';
-        chartLevelFocus = null; chartCategoryFocus = null;
-        setReportSubtab('overview');
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // CONTROLS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function enableControls() {
+            const hasData = combinedRows.length > 0;
+            btnClean.disabled = !hasData;
+            btnReset.disabled = !hasData;
+            btnExport.disabled = !hasData;
+            btnClearAll.disabled = !hasData;
+            btnGenerateReport.disabled = !hasData;
+            searchInput.disabled = !hasData;
+            if (hasData) searchInput.placeholder = 'Filter rows...';
+        }
 
-        buildReportFilterOptions();
-        renderOverview();
-        renderReportTable();
-        renderDivisionBreakdown();
+        function cleanRows() {
+            if (cleanedRows.length === 0) {
+                showToast('No data to clean.', 'fa-exclamation-triangle', '#dc2626');
+                return;
+            }
+            const before = cleanedRows.length;
+            cleanedRows = cleanedRows.filter(row => row.slice(2).some(cell => String(cell).trim().length > 0));
+            const removed = before - cleanedRows.length;
+            sortCol = null;
+            sortDir = 1;
+            filterText = '';
+            searchInput.value = '';
+            renderTable();
+            reportSection.style.display = 'none';
+            showToast(`Removed ${removed} empty row${removed > 1 ? 's' : ''}. ${cleanedRows.length} rows remain.`, 'fa-broom',
+                '#2563eb');
+        }
 
-        reportSection.style.display = 'block';
-        btnExportReport.disabled = false;
-        document.getElementById('asOfLabel').textContent = `As of ${today.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`;
-        showToast(`Report generated with ${reportData.length} entries.`, 'fa-chart-line', '#8b5cf6');
-    }
+        function resetData() {
+            if (combinedRows.length === 0) {
+                showToast('No original data to restore.', 'fa-exclamation-triangle', '#dc2626');
+                return;
+            }
+            cleanedRows = combinedRows.filter(row => row.slice(2).some(c => String(c).trim().length > 0));
+            sortCol = null;
+            sortDir = 1;
+            filterText = '';
+            searchInput.value = '';
+            renderTable();
+            reportSection.style.display = 'none';
+            showToast(`Reset to ${cleanedRows.length} rows.`, 'fa-undo', '#2563eb');
+        }
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // REPORT UX — subtabs, KPIs, charts, filters, drilldown
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    let reportSortCol = null, reportSortDir = 1;
-    let reportFilterText = '', reportFilterLevel = '', reportFilterCategory = '', reportFilterBillType = '';
-    let chartLevelFocus = null, chartCategoryFocus = null;
+        function clearAll() {
+            LIST_TYPES.forEach(lt => {
+                listData[lt] = { fileName: null, rows: [] };
+                const status = document.getElementById(`status-${lt}`);
+                if (status) status.textContent = 'No file uploaded';
+                const input = document.querySelector(`.tab-pane[data-list="${lt}"] input[type="file"]`);
+                if (input) input.value = '';
+            });
+            masterHeaders = [];
+            combinedRows = [];
+            cleanedRows = [];
+            sortCol = null;
+            sortDir = 1;
+            filterText = '';
+            searchInput.value = '';
+            enableControls();
+            renderTable();
+            reportSection.style.display = 'none';
+            tableBody.innerHTML = `<tr><td colspan="2" class="empty-row">Upload files in the tabs above.</td></tr>`;
+            stats.innerHTML = `Rows: <strong>0</strong>`;
+            showToast('All files cleared.', 'fa-times', '#475569');
+        }
 
-    document.getElementById('reportSubtabs').querySelectorAll('.report-subtab-btn').forEach(btn => {
-        btn.addEventListener('click', () => setReportSubtab(btn.dataset.sub));
-    });
-    function setReportSubtab(name) {
-        document.querySelectorAll('.report-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.sub === name));
-        document.querySelectorAll('.report-subpane').forEach(p => p.classList.toggle('active', p.id === `subpane-${name}`));
-    }
+        function exportData() {
+            if (cleanedRows.length === 0) {
+                showToast('No data to export.', 'fa-exclamation-triangle', '#dc2626');
+                return;
+            }
+            let exportRows = cleanedRows;
+            if (filterText.trim()) {
+                const ft = filterText.trim().toLowerCase();
+                exportRows = cleanedRows.filter(row =>
+                    row.some(cell => String(cell).toLowerCase().includes(ft))
+                );
+            }
+            if (sortCol !== null && sortCol >= 0 && sortCol < (['List', 'Source File', ...masterHeaders].length)) {
+                exportRows = [...exportRows].sort((a, b) => {
+                    const va = String(a[sortCol] || '').toLowerCase();
+                    const vb = String(b[sortCol] || '').toLowerCase();
+                    if (va < vb) return -sortDir;
+                    if (va > vb) return sortDir;
+                    return 0;
+                });
+            }
+            const displayHeaders = ['List', 'Source File', ...masterHeaders];
+            const wsData = [displayHeaders, ...exportRows];
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Merged');
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `merged_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Exported ${exportRows.length} rows.`, 'fa-download', '#16a34a');
+        }
 
-    function catPill(cat) {
-        const c = CATEGORY_COLORS[cat] || '#94a3b8';
-        return `<span class="cat-pill" style="background:${c}1a; color:${c};"><span class="dot" style="background:${c};"></span>${cat}</span>`;
-    }
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // REPORT GENERATION (data layer — unchanged logic)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        const LEVEL_ORDER = ['TPIA', 'SO', 'SDO', 'TC', 'AO', 'EE'];
+        const CATEGORY_ORDER = ['<30 days', '1 to 3 months', '3 to 6 months', '6 to 12 months', '> 1 Year', 'Unknown'];
+        const CATEGORY_COLORS = {
+            '<30 days': '#16a34a',
+            '1 to 3 months': '#2563eb',
+            '3 to 6 months': '#f59e0b',
+            '6 to 12 months': '#ea580c',
+            '> 1 Year': '#dc2626',
+            'Unknown': '#94a3b8'
+        };
 
-    function computeStats() {
-        const byLevel = {}; // level -> {cat: count}
-        const byCategory = {};
-        CATEGORY_ORDER.forEach(c => byCategory[c] = 0);
-        let critical = 0, unknown = 0, total = reportData.length;
-        reportData.forEach(r => {
-            const lvl = r.pendingLevel || 'Unknown';
-            if (!byLevel[lvl]) byLevel[lvl] = {};
-            byLevel[lvl][r.pendingCategory] = (byLevel[lvl][r.pendingCategory] || 0) + 1;
-            byCategory[r.pendingCategory] = (byCategory[r.pendingCategory] || 0) + 1;
-            if (r.pendingCategory === '> 1 Year') critical++;
-            if (r.pendingCategory === 'Unknown') unknown++;
-        });
-        const withDays = reportData.filter(r => r.pendingDays !== null).sort((a, b) => b.pendingDays - a.pendingDays);
-        const oldest = withDays[0] || null;
-        return { byLevel, byCategory, critical, unknown, total, oldest, withDays };
-    }
+        function getColumnIndex(headers, name) {
+            return headers.findIndex(h => h.trim().toUpperCase() === name.toUpperCase());
+        }
 
-    function renderOverview() {
-        const s = computeStats();
-        const kpiRow = document.getElementById('kpiRow');
-        const avgDays = s.withDays.length ? Math.round(s.withDays.reduce((a, r) => a + r.pendingDays, 0) / s.withDays.length) : 0;
+        function generateReport() {
+            if (cleanedRows.length === 0) {
+                showToast('No data to generate report. Upload files first.', 'fa-exclamation-triangle', '#dc2626');
+                return;
+            }
 
-        const kpis = [
-            { label: 'Total pending bills', value: s.total, sub: `${LEVEL_ORDER.filter(l => s.byLevel[l]).length} active levels`, color: '#2563eb', filter: null },
-            { label: 'Over 1 year', value: s.critical, sub: 'critical backlog', color: '#dc2626', filter: { cat: '> 1 Year' } },
-            { label: 'Avg. pending days', value: avgDays, sub: 'across dated bills', color: '#8b5cf6', filter: null },
-            { label: 'Unknown / no date', value: s.unknown, sub: 'needs data cleanup', color: '#94a3b8', filter: { cat: 'Unknown' } }
-        ];
-        kpiRow.innerHTML = kpis.map(k => `
-            <div class="kpi-card" style="border-left-color:${k.color};" data-filter='${k.filter ? JSON.stringify(k.filter) : ''}'>
-                <div class="kpi-label">${k.label}</div>
-                <div class="kpi-value" style="color:${k.color};">${k.value}</div>
-                <div class="kpi-sub">${k.sub}</div>
-            </div>
-        `).join('');
-        kpiRow.querySelectorAll('.kpi-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const f = card.dataset.filter;
-                reportFilterCategory = ''; reportFilterLevel = '';
-                if (f) {
-                    const parsed = JSON.parse(f);
-                    if (parsed.cat) reportFilterCategory = parsed.cat;
-                    if (parsed.level) reportFilterLevel = parsed.level;
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const displayHeaders = ['List', 'Source File', ...masterHeaders];
+            const colMap = {};
+            displayHeaders.forEach((h, idx) => colMap[h] = idx);
+
+            const dateCol = 'DATE';
+            const tpiReportCol = 'TPI Report';
+            const soApprovalCol = 'SO Approval';
+            const sdoApprovalCol = 'SDO Approval';
+            const tcApprovalCol = 'TC Approval';
+            const aoApprovalCol = 'AO Approval';
+            const billNoCol = 'BILL NO';
+            const schemeCol = 'Scheme';
+            const divisionCol = 'Division';
+
+            function getDateFromCell(cell) {
+                if (cell instanceof Date && !isNaN(cell)) {
+                    const d = new Date(cell.getFullYear(), cell.getMonth(), cell.getDate());
+                    if (d.getFullYear() > 1900 && d.getFullYear() < 2100) return d;
+                    return null;
                 }
-                syncFilterInputs();
-                renderReportTable();
-                setReportSubtab('table');
-            });
-        });
+                if (typeof cell === 'string') {
+                    const d = parseDateFromString(cell);
+                    if (d && !isNaN(d) && d.getFullYear() > 1900 && d.getFullYear() < 2100) {
+                        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+                    }
+                    return null;
+                }
+                return null;
+            }
 
-        renderStackedBars(s.byLevel);
-        renderLegend();
-        renderOldestList(s.withDays);
-    }
+            function getPendingDays(dateObj) {
+                if (!dateObj) return null;
+                const diff = today.getTime() - dateObj.getTime();
+                if (diff < 0) return 0;
+                return Math.floor(diff / (1000 * 60 * 60 * 24));
+            }
 
-    function renderStackedBars(byLevel) {
-        const container = document.getElementById('stackedBars');
-        const levels = LEVEL_ORDER.filter(l => byLevel[l]);
-        if (levels.length === 0) {
-            container.innerHTML = `<div class="empty-report"><i class="fas fa-inbox"></i>No pending-level data found.</div>`;
-            return;
+            function categorizeDays(days) {
+                if (days === null || days === undefined) return 'Unknown';
+                if (days < 30) return '<30 days';
+                else if (days >= 30 && days < 90) return '1 to 3 months';
+                else if (days >= 90 && days < 180) return '3 to 6 months';
+                else if (days >= 180 && days < 365) return '6 to 12 months';
+                else return '> 1 Year';
+            }
+
+            function getBillType(billNo) {
+                if (!billNo) return 'Unknown';
+                const s = String(billNo).toUpperCase();
+                if (s.includes('FINAL BILL')) return 'Final Bill';
+                else if (s.includes('RA')) return 'Running Bill';
+                else return 'Other';
+            }
+
+            reportData = [];
+            for (const row of cleanedRows) {
+                const list = row[colMap['List']] || '';
+                const getVal = (colName) => {
+                    const idx = colMap[colName];
+                    return idx !== undefined ? row[idx] : '';
+                };
+
+                const billNo = getVal(billNoCol);
+                const scheme = getVal(schemeCol);
+                const division = getVal(divisionCol);
+                const billType = getBillType(billNo);
+
+                let pendingLevel = null;
+                let dateObj = null;
+
+                if (list === 'SO') {
+                    const tpiVal = getVal(tpiReportCol);
+                    const dateVal = getVal(dateCol);
+                    if (tpiVal && typeof tpiVal === 'string' && tpiVal.toLowerCase().includes('pending')) {
+                        pendingLevel = 'TPIA';
+                        dateObj = getDateFromCell(dateVal);
+                    } else {
+                        pendingLevel = 'SO';
+                        dateObj = getDateFromCell(tpiVal);
+                    }
+                } else if (list === 'SDO') {
+                    pendingLevel = 'SDO';
+                    dateObj = getDateFromCell(getVal(soApprovalCol));
+                } else if (list === 'TC') {
+                    pendingLevel = 'TC';
+                    dateObj = getDateFromCell(getVal(sdoApprovalCol));
+                } else if (list === 'AO') {
+                    pendingLevel = 'AO';
+                    dateObj = getDateFromCell(getVal(tcApprovalCol));
+                } else if (list === 'EE') {
+                    pendingLevel = 'EE';
+                    dateObj = getDateFromCell(getVal(aoApprovalCol));
+                }
+
+                let pendingDays = null;
+                let pendingCategory = 'Unknown';
+                if (pendingLevel && dateObj) {
+                    pendingDays = getPendingDays(dateObj);
+                    pendingCategory = categorizeDays(pendingDays);
+                }
+
+                reportData.push({ billNo, scheme, division, billType, pendingLevel, pendingDays, pendingCategory });
+            }
+
+            reportSortCol = null;
+            reportSortDir = 1;
+            reportFilterText = '';
+            reportFilterLevel = '';
+            reportFilterCategory = '';
+            reportFilterBillType = '';
+            document.getElementById('reportSearch').value = '';
+            chartLevelFocus = null;
+            chartCategoryFocus = null;
+            setReportSubtab('overview');
+
+            buildReportFilterOptions();
+            renderOverview();
+            renderReportTable();
+            renderDivisionBreakdown();
+
+            reportSection.style.display = 'block';
+            btnExportReport.disabled = false;
+            btnPrintReport.disabled = false;
+            document.getElementById('asOfLabel').textContent =
+                `As of ${today.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`;
+            showToast(`Report generated with ${reportData.length} entries.`, 'fa-chart-line', '#8b5cf6');
         }
-        let html = '';
-        levels.forEach(level => {
-            const cats = byLevel[level];
-            const total = Object.values(cats).reduce((a, b) => a + b, 0);
-            html += `<div class="bar-row" data-level="${level}"><div class="bar-label">${level}</div><div class="bar-track">`;
-            CATEGORY_ORDER.forEach(cat => {
-                const count = cats[cat] || 0;
-                if (count === 0) return;
-                const pct = (count / total * 100).toFixed(2);
-                const dim = (chartCategoryFocus && chartCategoryFocus !== cat) ? 'opacity:0.25;' : '';
-                html += `<div class="bar-seg" title="${level} · ${cat}: ${count}" style="width:${pct}%; background:${CATEGORY_COLORS[cat]}; ${dim}" data-level="${level}" data-cat="${cat}"></div>`;
-            });
-            html += `</div><div class="bar-total">${total}</div></div>`;
-        });
-        container.innerHTML = html;
-        container.querySelectorAll('.bar-seg').forEach(seg => {
-            seg.addEventListener('click', () => {
-                reportFilterLevel = seg.dataset.level;
-                reportFilterCategory = seg.dataset.cat;
-                syncFilterInputs();
-                renderReportTable();
-                setReportSubtab('table');
-            });
-        });
-    }
 
-    function renderLegend() {
-        const legend = document.getElementById('chartLegend');
-        legend.innerHTML = CATEGORY_ORDER.map(cat => `
-            <div class="legend-item ${chartCategoryFocus && chartCategoryFocus !== cat ? 'dim' : ''}" data-cat="${cat}">
-                <span class="dot" style="background:${CATEGORY_COLORS[cat]};"></span>${cat}
-            </div>
-        `).join('');
-        legend.querySelectorAll('.legend-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const cat = item.dataset.cat;
-                chartCategoryFocus = (chartCategoryFocus === cat) ? null : cat;
-                renderOverview();
-            });
-        });
-    }
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // REPORT UX — subtabs, KPIs, charts, filters, drilldown
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let reportSortCol = null,
+            reportSortDir = 1;
+        let reportFilterText = '',
+            reportFilterLevel = '',
+            reportFilterCategory = '',
+            reportFilterBillType = '';
+        let chartLevelFocus = null,
+            chartCategoryFocus = null;
 
-    function renderOldestList(withDays) {
-        const el = document.getElementById('oldestList');
-        const top = withDays.slice(0, 8);
-        if (top.length === 0) {
-            el.innerHTML = `<div class="empty-report"><i class="fas fa-calendar-check"></i>No dated pending bills yet.</div>`;
-            return;
+        document.getElementById('reportSubtabs').querySelectorAll('.report-subtab-btn').forEach(btn => {
+            btn.addEventListener('click', () => setReportSubtab(btn.dataset.sub));
+        });
+
+        function setReportSubtab(name) {
+            document.querySelectorAll('.report-subtab-btn').forEach(b => b.classList.toggle('active', b.dataset.sub === name));
+            document.querySelectorAll('.report-subpane').forEach(p => p.classList.toggle('active', p.id === `subpane-${name}`));
         }
-        el.innerHTML = top.map((r, i) => `
-            <div class="oldest-item" style="border-left-color:${CATEGORY_COLORS[r.pendingCategory]};">
-                <div class="rank">${i + 1}</div>
-                <div class="info">
-                    <div class="bill">${r.billNo || '—'} <span style="font-weight:600;color:#94a3b8;">· ${r.pendingLevel || '—'}</span></div>
-                    <div class="meta">${r.division || 'Unknown division'} · ${r.scheme || 'Unknown scheme'}</div>
-                </div>
-                <div class="days">${r.pendingDays}<small>DAYS</small></div>
-            </div>
-        `).join('');
-    }
 
-    function buildReportFilterOptions() {
-        const levelSel = document.getElementById('rfLevel');
-        const catSel = document.getElementById('rfCategory');
-        const typeSel = document.getElementById('rfBillType');
-        const levels = [...new Set(reportData.map(r => r.pendingLevel).filter(Boolean))];
-        const types = [...new Set(reportData.map(r => r.billType).filter(Boolean))];
-        levelSel.innerHTML = '<option value="">All levels</option>' + LEVEL_ORDER.filter(l => levels.includes(l)).map(l => `<option value="${l}">${l}</option>`).join('');
-        catSel.innerHTML = '<option value="">All ages</option>' + CATEGORY_ORDER.map(c => `<option value="${c}">${c}</option>`).join('');
-        typeSel.innerHTML = '<option value="">All bill types</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
-    }
-
-    function syncFilterInputs() {
-        document.getElementById('rfLevel').value = reportFilterLevel;
-        document.getElementById('rfCategory').value = reportFilterCategory;
-        document.getElementById('rfBillType').value = reportFilterBillType;
-    }
-
-    document.getElementById('reportSearch').addEventListener('input', (e) => {
-        reportFilterText = e.target.value;
-        renderReportTable();
-    });
-    document.getElementById('rfLevel').addEventListener('change', (e) => { reportFilterLevel = e.target.value; renderReportTable(); });
-    document.getElementById('rfCategory').addEventListener('change', (e) => { reportFilterCategory = e.target.value; renderReportTable(); });
-    document.getElementById('rfBillType').addEventListener('change', (e) => { reportFilterBillType = e.target.value; renderReportTable(); });
-    document.getElementById('rfClear').addEventListener('click', () => {
-        reportFilterText = ''; reportFilterLevel = ''; reportFilterCategory = ''; reportFilterBillType = '';
-        document.getElementById('reportSearch').value = '';
-        syncFilterInputs();
-        renderReportTable();
-    });
-
-    function getFilteredReportRows() {
-        let rows = reportData;
-        if (reportFilterLevel) rows = rows.filter(r => r.pendingLevel === reportFilterLevel);
-        if (reportFilterCategory) rows = rows.filter(r => r.pendingCategory === reportFilterCategory);
-        if (reportFilterBillType) rows = rows.filter(r => r.billType === reportFilterBillType);
-        if (reportFilterText.trim()) {
-            const ft = reportFilterText.trim().toLowerCase();
-            rows = rows.filter(r => [r.billNo, r.scheme, r.division].some(v => String(v || '').toLowerCase().includes(ft)));
+        function catPill(cat) {
+            const c = CATEGORY_COLORS[cat] || '#94a3b8';
+            return `<span class="cat-pill" style="background:${c}1a; color:${c};"><span class="dot" style="background:${c};"></span>${cat}</span>`;
         }
-        const cols = ['billNo', 'scheme', 'division', 'billType', 'pendingLevel', 'pendingDays', 'pendingCategory'];
-        if (reportSortCol !== null) {
-            const key = cols[reportSortCol];
-            rows = [...rows].sort((a, b) => {
-                let va = a[key], vb = b[key];
-                if (key === 'pendingDays') { va = va ?? -1; vb = vb ?? -1; }
-                else { va = String(va || '').toLowerCase(); vb = String(vb || '').toLowerCase(); }
-                if (va < vb) return -reportSortDir;
-                if (va > vb) return reportSortDir;
-                return 0;
+
+        function computeStats() {
+            const byLevel = {};
+            const byCategory = {};
+            CATEGORY_ORDER.forEach(c => byCategory[c] = 0);
+            let critical = 0,
+                unknown = 0,
+                total = reportData.length;
+            reportData.forEach(r => {
+                const lvl = r.pendingLevel || 'Unknown';
+                if (!byLevel[lvl]) byLevel[lvl] = {};
+                byLevel[lvl][r.pendingCategory] = (byLevel[lvl][r.pendingCategory] || 0) + 1;
+                byCategory[r.pendingCategory] = (byCategory[r.pendingCategory] || 0) + 1;
+                if (r.pendingCategory === '> 1 Year') critical++;
+                if (r.pendingCategory === 'Unknown') unknown++;
+            });
+            const withDays = reportData.filter(r => r.pendingDays !== null).sort((a, b) => b.pendingDays - a.pendingDays);
+            const oldest = withDays[0] || null;
+            return { byLevel, byCategory, critical, unknown, total, oldest, withDays };
+        }
+
+        function renderOverview() {
+            const s = computeStats();
+            const kpiRow = document.getElementById('kpiRow');
+            const avgDays = s.withDays.length ? Math.round(s.withDays.reduce((a, r) => a + r.pendingDays, 0) / s.withDays
+                .length) : 0;
+
+            const kpis = [
+                { label: 'Total pending bills', value: s.total, sub: `${LEVEL_ORDER.filter(l => s.byLevel[l]).length} active levels`,
+                    color: '#2563eb', filter: null },
+                { label: 'Over 1 year', value: s.critical, sub: 'critical backlog', color: '#dc2626', filter: { cat: '> 1 Year' } },
+                { label: 'Avg. pending days', value: avgDays, sub: 'across dated bills', color: '#8b5cf6', filter: null },
+                { label: 'Unknown / no date', value: s.unknown, sub: 'needs data cleanup', color: '#94a3b8', filter: { cat: 'Unknown' } }
+            ];
+            kpiRow.innerHTML = kpis.map(k => `
+                    <div class="kpi-card" style="border-left-color:${k.color};" data-filter='${k.filter ? JSON.stringify(k.filter) : ''}'>
+                        <div class="kpi-label">${k.label}</div>
+                        <div class="kpi-value" style="color:${k.color};">${k.value}</div>
+                        <div class="kpi-sub">${k.sub}</div>
+                    </div>
+                `).join('');
+            kpiRow.querySelectorAll('.kpi-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const f = card.dataset.filter;
+                    reportFilterCategory = '';
+                    reportFilterLevel = '';
+                    if (f) {
+                        const parsed = JSON.parse(f);
+                        if (parsed.cat) reportFilterCategory = parsed.cat;
+                        if (parsed.level) reportFilterLevel = parsed.level;
+                    }
+                    syncFilterInputs();
+                    renderReportTable();
+                    setReportSubtab('table');
+                });
+            });
+
+            renderStackedBars(s.byLevel);
+            renderLegend();
+            renderOldestList(s.withDays);
+        }
+
+        function renderStackedBars(byLevel) {
+            const container = document.getElementById('stackedBars');
+            const levels = LEVEL_ORDER.filter(l => byLevel[l]);
+            if (levels.length === 0) {
+                container.innerHTML = `<div class="empty-report"><i class="fas fa-inbox"></i>No pending-level data found.</div>`;
+                return;
+            }
+            let html = '';
+            levels.forEach(level => {
+                const cats = byLevel[level];
+                const total = Object.values(cats).reduce((a, b) => a + b, 0);
+                html += `<div class="bar-row" data-level="${level}"><div class="bar-label">${level}</div><div class="bar-track">`;
+                CATEGORY_ORDER.forEach(cat => {
+                    const count = cats[cat] || 0;
+                    if (count === 0) return;
+                    const pct = (count / total * 100).toFixed(2);
+                    const dim = (chartCategoryFocus && chartCategoryFocus !== cat) ? 'opacity:0.25;' : '';
+                    html +=
+                        `<div class="bar-seg" title="${level} · ${cat}: ${count}" style="width:${pct}%; background:${CATEGORY_COLORS[cat]}; ${dim}" data-level="${level}" data-cat="${cat}"></div>`;
+                });
+                html += `</div><div class="bar-total">${total}</div></div>`;
+            });
+            container.innerHTML = html;
+            container.querySelectorAll('.bar-seg').forEach(seg => {
+                seg.addEventListener('click', () => {
+                    reportFilterLevel = seg.dataset.level;
+                    reportFilterCategory = seg.dataset.cat;
+                    syncFilterInputs();
+                    renderReportTable();
+                    setReportSubtab('table');
+                });
             });
         }
-        return rows;
-    }
 
-    function renderReportTable() {
-        const headers = ['Bill No', 'Scheme', 'Division', 'Bill Type', 'Pending Level', 'Pending Days', 'Pending Category'];
-        let theadHtml = '<tr>';
-        headers.forEach((h, idx) => {
-            const isSorted = reportSortCol === idx;
-            const cls = isSorted ? (reportSortDir === 1 ? 'sorted-asc' : 'sorted-desc') : '';
-            const arrow = isSorted ? (reportSortDir === 1 ? '↑' : '↓') : '⇅';
-            theadHtml += `<th class="${cls}" data-col="${idx}">${h} <i style="font-size:10px;">${arrow}</i></th>`;
-        });
-        theadHtml += '</tr>';
-        reportHead.innerHTML = theadHtml;
-        reportHead.querySelectorAll('th').forEach(th => {
-            th.addEventListener('click', () => {
-                const idx = parseInt(th.dataset.col);
-                if (reportSortCol === idx) reportSortDir *= -1;
-                else { reportSortCol = idx; reportSortDir = 1; }
-                renderReportTable();
+        function renderLegend() {
+            const legend = document.getElementById('chartLegend');
+            legend.innerHTML = CATEGORY_ORDER.map(cat => `
+                    <div class="legend-item ${chartCategoryFocus && chartCategoryFocus !== cat ? 'dim' : ''}" data-cat="${cat}">
+                        <span class="dot" style="background:${CATEGORY_COLORS[cat]};"></span>${cat}
+                    </div>
+                `).join('');
+            legend.querySelectorAll('.legend-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const cat = item.dataset.cat;
+                    chartCategoryFocus = (chartCategoryFocus === cat) ? null : cat;
+                    renderOverview();
+                });
             });
+        }
+
+        function renderOldestList(withDays) {
+            const el = document.getElementById('oldestList');
+            const top = withDays.slice(0, 8);
+            if (top.length === 0) {
+                el.innerHTML = `<div class="empty-report"><i class="fas fa-calendar-check"></i>No dated pending bills yet.</div>`;
+                return;
+            }
+            el.innerHTML = top.map((r, i) => `
+                    <div class="oldest-item" style="border-left-color:${CATEGORY_COLORS[r.pendingCategory]};">
+                        <div class="rank">${i + 1}</div>
+                        <div class="info">
+                            <div class="bill">${r.billNo || '—'} <span style="font-weight:600;color:#94a3b8;">· ${r.pendingLevel || '—'}</span></div>
+                            <div class="meta">${r.division || 'Unknown division'} · ${r.scheme || 'Unknown scheme'}</div>
+                        </div>
+                        <div class="days">${r.pendingDays}<small>DAYS</small></div>
+                    </div>
+                `).join('');
+        }
+
+        function buildReportFilterOptions() {
+            const levelSel = document.getElementById('rfLevel');
+            const catSel = document.getElementById('rfCategory');
+            const typeSel = document.getElementById('rfBillType');
+            const levels = [...new Set(reportData.map(r => r.pendingLevel).filter(Boolean))];
+            const types = [...new Set(reportData.map(r => r.billType).filter(Boolean))];
+            levelSel.innerHTML = '<option value="">All levels</option>' + LEVEL_ORDER.filter(l => levels.includes(l)).map(l =>
+                `<option value="${l}">${l}</option>`).join('');
+            catSel.innerHTML = '<option value="">All ages</option>' + CATEGORY_ORDER.map(c =>
+                `<option value="${c}">${c}</option>`).join('');
+            typeSel.innerHTML = '<option value="">All bill types</option>' + types.map(t =>
+                `<option value="${t}">${t}</option>`).join('');
+        }
+
+        function syncFilterInputs() {
+            document.getElementById('rfLevel').value = reportFilterLevel;
+            document.getElementById('rfCategory').value = reportFilterCategory;
+            document.getElementById('rfBillType').value = reportFilterBillType;
+        }
+
+        document.getElementById('reportSearch').addEventListener('input', (e) => {
+            reportFilterText = e.target.value;
+            renderReportTable();
+        });
+        document.getElementById('rfLevel').addEventListener('change', (e) => { reportFilterLevel = e.target.value;
+            renderReportTable(); });
+        document.getElementById('rfCategory').addEventListener('change', (e) => { reportFilterCategory = e.target.value;
+            renderReportTable(); });
+        document.getElementById('rfBillType').addEventListener('change', (e) => { reportFilterBillType = e.target.value;
+            renderReportTable(); });
+        document.getElementById('rfClear').addEventListener('click', () => {
+            reportFilterText = '';
+            reportFilterLevel = '';
+            reportFilterCategory = '';
+            reportFilterBillType = '';
+            document.getElementById('reportSearch').value = '';
+            syncFilterInputs();
+            renderReportTable();
         });
 
-        const rows = getFilteredReportRows();
-        if (rows.length === 0) {
-            reportBody.innerHTML = `<tr><td colspan="7" class="empty-row">No bills match the current filters.</td></tr>`;
-        } else {
-            reportBody.innerHTML = rows.map(r => `
-                <tr class="report-table-row-flag" style="--flag-color:${CATEGORY_COLORS[r.pendingCategory]};">
-                    <td>${r.billNo || '—'}</td>
-                    <td>${r.scheme || '—'}</td>
-                    <td>${r.division || '—'}</td>
-                    <td>${r.billType || '—'}</td>
-                    <td>${r.pendingLevel || '—'}</td>
-                    <td>${r.pendingDays !== null ? r.pendingDays : '—'}</td>
-                    <td>${catPill(r.pendingCategory)}</td>
-                </tr>
-            `).join('');
+        function getFilteredReportRows() {
+            let rows = reportData;
+            if (reportFilterLevel) rows = rows.filter(r => r.pendingLevel === reportFilterLevel);
+            if (reportFilterCategory) rows = rows.filter(r => r.pendingCategory === reportFilterCategory);
+            if (reportFilterBillType) rows = rows.filter(r => r.billType === reportFilterBillType);
+            if (reportFilterText.trim()) {
+                const ft = reportFilterText.trim().toLowerCase();
+                rows = rows.filter(r => [r.billNo, r.scheme, r.division].some(v => String(v || '').toLowerCase().includes(ft)));
+            }
+            const cols = ['billNo', 'scheme', 'division', 'billType', 'pendingLevel', 'pendingDays', 'pendingCategory'];
+            if (reportSortCol !== null) {
+                const key = cols[reportSortCol];
+                rows = [...rows].sort((a, b) => {
+                    let va = a[key],
+                        vb = b[key];
+                    if (key === 'pendingDays') { va = va ?? -1;
+                        vb = vb ?? -1; } else { va = String(va || '').toLowerCase();
+                        vb = String(vb || '').toLowerCase(); }
+                    if (va < vb) return -reportSortDir;
+                    if (va > vb) return reportSortDir;
+                    return 0;
+                });
+            }
+            return rows;
         }
-    }
 
-    function renderDivisionBreakdown() {
-        const byDivision = {};
-        reportData.forEach(r => {
-            const div = r.division || 'Unknown division';
-            if (!byDivision[div]) byDivision[div] = { total: 0, days: [], cats: {} };
-            byDivision[div].total++;
-            if (r.pendingDays !== null) byDivision[div].days.push(r.pendingDays);
-            byDivision[div].cats[r.pendingCategory] = (byDivision[div].cats[r.pendingCategory] || 0) + 1;
-        });
+        function renderReportTable() {
+            const headers = ['Bill No', 'Scheme', 'Division', 'Bill Type', 'Pending Level', 'Pending Days', 'Pending Category'];
+            let theadHtml = '<tr>';
+            headers.forEach((h, idx) => {
+                const isSorted = reportSortCol === idx;
+                const cls = isSorted ? (reportSortDir === 1 ? 'sorted-asc' : 'sorted-desc') : '';
+                const arrow = isSorted ? (reportSortDir === 1 ? '↑' : '↓') : '⇅';
+                theadHtml += `<th class="${cls}" data-col="${idx}">${h} <i style="font-size:10px;">${arrow}</i></th>`;
+            });
+            theadHtml += '</tr>';
+            reportHead.innerHTML = theadHtml;
+            reportHead.querySelectorAll('th').forEach(th => {
+                th.addEventListener('click', () => {
+                    const idx = parseInt(th.dataset.col);
+                    if (reportSortCol === idx) reportSortDir *= -1;
+                    else { reportSortCol = idx;
+                        reportSortDir = 1; }
+                    renderReportTable();
+                });
+            });
 
-        const divisionHead = document.getElementById('divisionHead');
-        const divisionBody = document.getElementById('divisionBody');
-        divisionHead.innerHTML = `<tr><th>Division</th><th>Total pending</th><th>Avg. days</th>${CATEGORY_ORDER.map(c => `<th>${c}</th>`).join('')}</tr>`;
-
-        const entries = Object.entries(byDivision).sort((a, b) => b[1].total - a[1].total);
-        if (entries.length === 0) {
-            divisionBody.innerHTML = `<tr><td colspan="${3 + CATEGORY_ORDER.length}" class="empty-row">No division data available.</td></tr>`;
-            return;
+            const rows = getFilteredReportRows();
+            if (rows.length === 0) {
+                reportBody.innerHTML = `<tr><td colspan="7" class="empty-row">No bills match the current filters.</td></tr>`;
+            } else {
+                reportBody.innerHTML = rows.map(r => `
+                        <tr class="report-table-row-flag" style="--flag-color:${CATEGORY_COLORS[r.pendingCategory]};">
+                            <td>${r.billNo || '—'}</td>
+                            <td>${r.scheme || '—'}</td>
+                            <td>${r.division || '—'}</td>
+                            <td>${r.billType || '—'}</td>
+                            <td>${r.pendingLevel || '—'}</td>
+                            <td>${r.pendingDays !== null ? r.pendingDays : '—'}</td>
+                            <td>${catPill(r.pendingCategory)}</td>
+                        </tr>
+                    `).join('');
+            }
         }
-        divisionBody.innerHTML = entries.map(([div, d]) => {
-            const avg = d.days.length ? Math.round(d.days.reduce((a, b) => a + b, 0) / d.days.length) : '—';
-            const catCells = CATEGORY_ORDER.map(c => {
-                const n = d.cats[c] || 0;
-                return `<td>${n > 0 ? `<span style="color:${CATEGORY_COLORS[c]}; font-weight:700;">${n}</span>` : '<span style="color:#cbd5e1;">0</span>'}</td>`;
+
+        function renderDivisionBreakdown() {
+            const byDivision = {};
+            reportData.forEach(r => {
+                const div = r.division || 'Unknown division';
+                if (!byDivision[div]) byDivision[div] = { total: 0, days: [], cats: {} };
+                byDivision[div].total++;
+                if (r.pendingDays !== null) byDivision[div].days.push(r.pendingDays);
+                byDivision[div].cats[r.pendingCategory] = (byDivision[div].cats[r.pendingCategory] || 0) + 1;
+            });
+
+            const divisionHead = document.getElementById('divisionHead');
+            const divisionBody = document.getElementById('divisionBody');
+            divisionHead.innerHTML =
+                `<tr><th>Division</th><th>Total pending</th><th>Avg. days</th>${CATEGORY_ORDER.map(c => `<th>${c}</th>`).join('')}</tr>`;
+
+            const entries = Object.entries(byDivision).sort((a, b) => b[1].total - a[1].total);
+            if (entries.length === 0) {
+                divisionBody.innerHTML =
+                    `<tr><td colspan="${3 + CATEGORY_ORDER.length}" class="empty-row">No division data available.</td></tr>`;
+                return;
+            }
+            divisionBody.innerHTML = entries.map(([div, d]) => {
+                const avg = d.days.length ? Math.round(d.days.reduce((a, b) => a + b, 0) / d.days.length) : '—';
+                const catCells = CATEGORY_ORDER.map(c => {
+                    const n = d.cats[c] || 0;
+                    return `<td>${n > 0 ? `<span style="color:${CATEGORY_COLORS[c]}; font-weight:700;">${n}</span>` : '<span style="color:#cbd5e1;">0</span>'}</td>`;
+                }).join('');
+                return `<tr><td style="font-weight:700;">${div}</td><td>${d.total}</td><td>${avg}</td>${catCells}</tr>`;
             }).join('');
-            return `<tr><td style="font-weight:700;">${div}</td><td>${d.total}</td><td>${avg}</td>${catCells}</tr>`;
-        }).join('');
-    }
-
-    function exportReport() {
-        if (reportData.length === 0) {
-            showToast('No report data to export.', 'fa-exclamation-triangle', '#dc2626');
-            return;
         }
-        const rows = getFilteredReportRows();
-        const headers = ['Bill No', 'Scheme', 'Division', 'Bill Type', 'Pending Level', 'Pending Days', 'Pending Category'];
-        const wsData = [headers];
-        rows.forEach(r => {
-            wsData.push([
-                r.billNo || '',
-                r.scheme || '',
-                r.division || '',
-                r.billType || '',
-                r.pendingLevel || '',
-                r.pendingDays !== null ? r.pendingDays : '',
-                r.pendingCategory || ''
-            ]);
-        });
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'TimelineReport');
 
-        // Summary sheet
-        const s = computeStats();
-        const summaryData = [['Pending Level', ...CATEGORY_ORDER, 'Total']];
-        LEVEL_ORDER.filter(l => s.byLevel[l]).forEach(level => {
-            const cats = s.byLevel[level];
-            const rowVals = CATEGORY_ORDER.map(c => cats[c] || 0);
-            summaryData.push([level, ...rowVals, rowVals.reduce((a, b) => a + b, 0)]);
-        });
-        const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
-        XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+        function exportReport() {
+            if (reportData.length === 0) {
+                showToast('No report data to export.', 'fa-exclamation-triangle', '#dc2626');
+                return;
+            }
+            const rows = getFilteredReportRows();
+            const headers = ['Bill No', 'Scheme', 'Division', 'Bill Type', 'Pending Level', 'Pending Days', 'Pending Category'];
+            const wsData = [headers];
+            rows.forEach(r => {
+                wsData.push([
+                    r.billNo || '',
+                    r.scheme || '',
+                    r.division || '',
+                    r.billType || '',
+                    r.pendingLevel || '',
+                    r.pendingDays !== null ? r.pendingDays : '',
+                    r.pendingCategory || ''
+                ]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'TimelineReport');
 
-        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([wbout], { type: 'application/octet-stream' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `TimelineReport_${new Date().toISOString().slice(0,10)}.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast(`Report exported (${rows.length} rows + summary).`, 'fa-download', '#16a34a');
-    }
+            const s = computeStats();
+            const summaryData = [['Pending Level', ...CATEGORY_ORDER, 'Total']];
+            LEVEL_ORDER.filter(l => s.byLevel[l]).forEach(level => {
+                const cats = s.byLevel[level];
+                const rowVals = CATEGORY_ORDER.map(c => cats[c] || 0);
+                summaryData.push([level, ...rowVals, rowVals.reduce((a, b) => a + b, 0)]);
+            });
+            const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // EVENT BINDING
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    btnClean.addEventListener('click', cleanRows);
-    btnReset.addEventListener('click', resetData);
-    btnExport.addEventListener('click', exportData);
-    btnClearAll.addEventListener('click', clearAll);
-    btnGenerateReport.addEventListener('click', generateReport);
-    btnExportReport.addEventListener('click', exportReport);
-
-    searchInput.addEventListener('input', () => {
-        filterText = searchInput.value;
-        renderTable();
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 'Enter') {
-            e.preventDefault();
-            if (!btnClean.disabled) cleanRows();
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([wbout], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `TimelineReport_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Report exported (${rows.length} rows + summary).`, 'fa-download', '#16a34a');
         }
-    });
 
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // INIT
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    tableBody.innerHTML = `<tr><td colspan="2" class="empty-row">Upload files in the tabs above.</td></tr>`;
-    enableControls();
-    reportSection.style.display = 'none';
-    btnExportReport.disabled = true;
-    console.log('📊 E Bill Timelines PHED TINSUKIA + Timeline Report ready (0000-00-00 → null)');
-</script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // PRINT REPORT — Tinsukia Division Abstract
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        function printReport() {
+            if (reportData.length === 0) {
+                showToast('No report data to print. Generate report first.', 'fa-exclamation-triangle', '#dc2626');
+                return;
+            }
+
+            const targetDivision = 'Tinsukia';
+            // Filter for Tinsukia division (case-insensitive)
+            const tinsukiaData = reportData.filter(r =>
+                r.division && String(r.division).toLowerCase().includes(targetDivision.toLowerCase())
+            );
+
+            if (tinsukiaData.length === 0) {
+                showToast(`No data found for "${targetDivision}" division.`, 'fa-exclamation-triangle', '#dc2626');
+                return;
+            }
+
+            // Build the print content
+            const printWin = window.open('', '_blank', 'width=1100,height=800');
+            if (!printWin) {
+                showToast('Please allow popups to print the report.', 'fa-exclamation-triangle', '#dc2626');
+                return;
+            }
+
+            const now = new Date();
+            const todayStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const total = tinsukiaData.length;
+
+            // Compute stats for Tinsukia
+            const byLevel = {};
+            const byCategory = {};
+            CATEGORY_ORDER.forEach(c => byCategory[c] = 0);
+            let critical = 0,
+                unknown = 0;
+            let daysArr = [];
+            tinsukiaData.forEach(r => {
+                const lvl = r.pendingLevel || 'Unknown';
+                if (!byLevel[lvl]) byLevel[lvl] = {};
+                byLevel[lvl][r.pendingCategory] = (byLevel[lvl][r.pendingCategory] || 0) + 1;
+                byCategory[r.pendingCategory] = (byCategory[r.pendingCategory] || 0) + 1;
+                if (r.pendingCategory === '> 1 Year') critical++;
+                if (r.pendingCategory === 'Unknown') unknown++;
+                if (r.pendingDays !== null) daysArr.push(r.pendingDays);
+            });
+            const avgDays = daysArr.length ? Math.round(daysArr.reduce((a, b) => a + b, 0) / daysArr.length) : 0;
+
+            // Build level breakdown table rows
+            let levelRowsHtml = '';
+            LEVEL_ORDER.filter(l => byLevel[l]).forEach(level => {
+                const cats = byLevel[level];
+                const totalL = Object.values(cats).reduce((a, b) => a + b, 0);
+                levelRowsHtml += `<tr>
+                        <td><strong>${level}</strong></td>
+                        ${CATEGORY_ORDER.map(c => `<td>${cats[c] || 0}</td>`).join('')}
+                        <td><strong>${totalL}</strong></td>
+                    </tr>`;
+            });
+
+            // Build bill list (top 20 oldest)
+            const sorted = [...tinsukiaData].filter(r => r.pendingDays !== null).sort((a, b) => b.pendingDays - a.pendingDays);
+            const topBills = sorted.slice(0, 20);
+            let billRowsHtml = '';
+            if (topBills.length === 0) {
+                billRowsHtml =
+                    `<tr><td colspan="7" style="text-align:center;color:#94a3b8;">No dated bills in Tinsukia division.</td></tr>`;
+            } else {
+                topBills.forEach((r, i) => {
+                    const catColor = CATEGORY_COLORS[r.pendingCategory] || '#94a3b8';
+                    billRowsHtml += `<tr>
+                            <td>${i + 1}</td>
+                            <td>${r.billNo || '—'}</td>
+                            <td>${r.scheme || '—'}</td>
+                            <td>${r.billType || '—'}</td>
+                            <td>${r.pendingLevel || '—'}</td>
+                            <td>${r.pendingDays}</td>
+                            <td><span style="background:${catColor}20;color:${catColor};padding:2px 10px;border-radius:12px;font-weight:600;font-size:10px;">${r.pendingCategory}</span></td>
+                        </tr>`;
+                });
+            }
+
+            // Build category bar chart (text-based)
+            let barHtml = '';
+            const maxCat = Math.max(...CATEGORY_ORDER.map(c => byCategory[c] || 0), 1);
+            CATEGORY_ORDER.forEach(cat => {
+                const count = byCategory[cat] || 0;
+                const pct = Math.round((count / total) * 100);
+                const color = CATEGORY_COLORS[cat] || '#94a3b8';
+                const barWidth = Math.max(2, Math.round((count / maxCat) * 100));
+                barHtml += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                        <span style="width:120px;font-size:11px;font-weight:600;color:#475569;">${cat}</span>
+                        <div style="flex:1;height:18px;background:#e5e7eb;border-radius:4px;overflow:hidden;">
+                            <div style="height:100%;width:${barWidth}%;background:${color};border-radius:4px;transition:width 0.2s;"></div>
+                        </div>
+                        <span style="width:50px;font-size:12px;font-weight:700;color:#1e293b;text-align:right;">${count}</span>
+                    </div>`;
+            });
+
+            const doc = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8" />
+                    <title>Abstract Report - Tinsukia Division</title>
+                    <style>
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
+                        body { font-family: 'Segoe UI', Roboto, system-ui, sans-serif; background: white; padding: 10mm; color: #1e293b; font-size: 11px; line-height: 1.5; }
+                        .print-container { max-width: 1100px; margin: 0 auto; }
+                        .print-header { text-align: center; border-bottom: 3px solid #8b5cf6; padding-bottom: 12px; margin-bottom: 16px; }
+                        .print-header h1 { font-size: 26px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; }
+                        .print-header h1 span { color: #8b5cf6; }
+                        .print-header .sub { font-size: 14px; color: #475569; font-weight: 400; margin-top: 2px; }
+                        .print-header .badge-div { display: inline-block; background: #8b5cf6; color: white; padding: 2px 24px; border-radius: 20px; font-size: 15px; font-weight: 700; margin-top: 6px; }
+                        .print-header .as-of { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+                        .print-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0 18px 0; }
+                        .print-grid .stat { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; text-align: center; }
+                        .print-grid .stat .num { font-size: 24px; font-weight: 800; color: #1e293b; }
+                        .print-grid .stat .label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.3px; }
+                        .print-grid .stat .sub { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+                        .print-section { margin: 18px 0 12px 0; }
+                        .print-section h2 { font-size: 16px; font-weight: 700; color: #1e293b; border-bottom: 2px solid #8b5cf6; padding-bottom: 4px; margin-bottom: 10px; }
+                        .print-section h2 i { color: #8b5cf6; margin-right: 8px; }
+                        .print-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
+                        .print-table th { background: #f1f5f9; font-weight: 700; padding: 6px 8px; border: 1px solid #e2e8f0; text-align: left; }
+                        .print-table td { padding: 5px 8px; border: 1px solid #e2e8f0; }
+                        .print-table tr:nth-child(even) td { background: #fafcff; }
+                        .print-table .highlight { background: #fef3c7; }
+                        .print-bar-group { margin: 6px 0; }
+                        .print-footer { margin-top: 20px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+                        .print-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+                        .print-oldest-item { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-left: 4px solid #dc2626; background: #fafafa; margin-bottom: 4px; border-radius: 4px; font-size: 11px; }
+                        .print-oldest-item .rank { font-weight: 800; color: #cbd5e1; width: 20px; }
+                        .print-oldest-item .info { flex: 1; }
+                        .print-oldest-item .info .bill { font-weight: 700; }
+                        .print-oldest-item .info .meta { color: #64748b; font-size: 10px; }
+                        .print-oldest-item .days { font-weight: 800; color: #dc2626; font-size: 13px; white-space: nowrap; }
+                        .print-oldest-item .days small { font-weight: 600; font-size: 9px; color: #94a3b8; display: block; text-align: right; }
+                        .print-badge { display: inline-block; background: #8b5cf6; color: white; padding: 0 12px; border-radius: 10px; font-size: 10px; font-weight: 700; line-height: 20px; }
+                        @media print { body { padding: 6mm; } .no-print { display: none !important; } .print-grid { break-inside: avoid; } .print-section { break-inside: avoid; } .print-table-wrap { break-inside: auto; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="print-container">
+                        <!-- HEADER -->
+                        <div class="print-header">
+                            <h1>📋 <span>Abstract</span> Timeline Report</h1>
+                            <div class="sub">Pending Bills — Consolidated Summary</div>
+                            <div class="badge-div">🏢 Tinsukia Division</div>
+                            <div class="as-of">As of ${todayStr}  ·  ${total} bills tracked</div>
+                        </div>
+
+                        <!-- KPI GRID -->
+                        <div class="print-grid">
+                            <div class="stat"><div class="num">${total}</div><div class="label">Total Pending</div></div>
+                            <div class="stat"><div class="num">${critical}</div><div class="label">> 1 Year</div><div class="sub">critical backlog</div></div>
+                            <div class="stat"><div class="num">${avgDays}</div><div class="label">Avg. Days</div><div class="sub">across dated bills</div></div>
+                            <div class="stat"><div class="num">${unknown}</div><div class="label">Unknown Date</div><div class="sub">needs cleanup</div></div>
+                        </div>
+
+                        <!-- 2-COLUMN: AGE CHART + OLDEST -->
+                        <div class="print-2col">
+                            <div class="print-section">
+                                <h2><i>📊</i> Pending Age Distribution</h2>
+                                <div class="print-bar-group">
+                                    ${barHtml}
+                                </div>
+                            </div>
+                            <div class="print-section">
+                                <h2><i>🔥</i> Oldest Bills</h2>
+                                ${sorted.slice(0, 5).map((r, i) => `
+                                    <div class="print-oldest-item" style="border-left-color:${CATEGORY_COLORS[r.pendingCategory]};">
+                                        <div class="rank">${i + 1}</div>
+                                        <div class="info">
+                                            <div class="bill">${r.billNo || '—'} <span style="font-weight:600;color:#94a3b8;font-size:10px;">· ${r.pendingLevel || '—'}</span></div>
+                                            <div class="meta">${r.division || 'Unknown'} · ${r.scheme || 'Unknown scheme'}</div>
+                                        </div>
+                                        <div class="days">${r.pendingDays}<small>DAYS</small></div>
+                                    </div>
+                                `).join('')}
+                                ${sorted.length === 0 ? '<div style="color:#94a3b8;font-style:italic;padding:10px 0;">No dated bills.</div>' : ''}
+                            </div>
+                        </div>
+
+                        <!-- LEVEL BREAKDOWN TABLE -->
+                        <div class="print-section" style="margin-top:6px;">
+                            <h2><i>📂</i> Breakdown by Pending Level</h2>
+                            <div class="print-table-wrap">
+                                <table class="print-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Level</th>
+                                            ${CATEGORY_ORDER.map(c => `<th>${c}</th>`).join('')}
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${levelRowsHtml || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;">No level data available.</td></tr>'}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- BILL LIST (TOP 20 OLDEST) -->
+                        <div class="print-section">
+                            <h2><i>📄</i> Oldest Pending Bills — Top 20</h2>
+                            <div class="print-table-wrap">
+                                <table class="print-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Bill No</th>
+                                            <th>Scheme</th>
+                                            <th>Bill Type</th>
+                                            <th>Level</th>
+                                            <th>Days</th>
+                                            <th>Category</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${billRowsHtml}
+                                    </tbody>
+                                </table>
+                                ${sorted.length > 20 ? `<div style="font-size:10px;color:#94a3b8;margin-top:4px;">Showing 20 of ${sorted.length} dated bills.</div>` : ''}
+                            </div>
+                        </div>
+
+                        <!-- FOOTER -->
+                        <div class="print-footer">
+                            Generated by 5‑List XLS Merger  ·  Tinsukia Division Abstract Report  ·  ${todayStr}
+                        </div>
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() { window.print(); }, 400);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            printWin.document.write(doc);
+            printWin.document.close();
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // EVENT BINDING
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        btnClean.addEventListener('click', cleanRows);
+        btnReset.addEventListener('click', resetData);
+        btnExport.addEventListener('click', exportData);
+        btnClearAll.addEventListener('click', clearAll);
+        btnGenerateReport.addEventListener('click', generateReport);
+        btnExportReport.addEventListener('click', exportReport);
+        btnPrintReport.addEventListener('click', printReport);
+
+        searchInput.addEventListener('input', () => {
+            filterText = searchInput.value;
+            renderTable();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                if (!btnClean.disabled) cleanRows();
+            }
+        });
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // INIT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        tableBody.innerHTML = `<tr><td colspan="2" class="empty-row">Upload files in the tabs above.</td></tr>`;
+        enableControls();
+        reportSection.style.display = 'none';
+        btnExportReport.disabled = true;
+        btnPrintReport.disabled = true;
+        console.log('📊 5‑List XLS Merger + Timeline Report ready (0000-00-00 → null)');
+    </script>
 </body>
 </html>
