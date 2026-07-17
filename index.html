@@ -1065,10 +1065,12 @@
                 </div>
             </div>
 
-            <div class="report-subtabs" id="reportSubtabs">
+          <div class="report-subtabs" id="reportSubtabs">
                 <button class="report-subtab-btn active" data-sub="overview"><i class="fas fa-chart-pie"></i> Overview</button>
                 <button class="report-subtab-btn" data-sub="table"><i class="fas fa-table"></i> Table</button>
                 <button class="report-subtab-btn" data-sub="division"><i class="fas fa-map"></i> By Division</button>
+                <button class="report-subtab-btn" data-sub="subdivision"><i class="fas fa-sitemap"></i> By Sub-Division</button>
+                <button class="report-subtab-btn" data-sub="soname"><i class="fas fa-user"></i> By SO Name</button>
                 <button class="report-subtab-btn" data-sub="reverted"><i class="fas fa-history"></i> Reverted History</button>
             </div>
 
@@ -1106,6 +1108,7 @@
             </div>
 
             <!-- BY DIVISION -->
+           <!-- BY DIVISION -->
             <div class="report-subpane" id="subpane-division">
                 <div class="table-wrap" style="max-height:440px;">
                     <table>
@@ -1113,6 +1116,32 @@
                         <tbody id="divisionBody"></tbody>
                     </table>
                 </div>
+            </div>
+
+            <!-- BY SUB-DIVISION -->
+            <div class="report-subpane" id="subpane-subdivision">
+                <div class="table-wrap" style="max-height:440px;">
+                    <table>
+                        <thead id="subdivisionHead"></thead>
+                        <tbody id="subdivisionBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- BY SO NAME -->
+            <div class="report-subpane" id="subpane-soname">
+                <div class="table-wrap" style="max-height:440px;">
+                    <table>
+                        <thead id="sonameHead"></thead>
+                        <tbody id="sonameBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REVERTED HISTORY -->
+            <div class="report-subpane" id="subpane-reverted">
+                <div class="reverted-summary" id="revertedSummary"></div>
+                <div class="reverted-timeline" id="revertedTimeline"></div>
             </div>
 
             <!-- REVERTED HISTORY -->
@@ -1577,6 +1606,12 @@
                 return;
             }
 
+            // Check if SMT mapping is loaded
+            if (!smtIdMapLoaded) {
+                showToast('⏳ SMT ID mapping is loading... Please wait a moment and try again.', 'fa-hourglass-end', '#f59e0b');
+                return;
+            }
+
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             const displayHeaders = ['List', 'Source File', ...masterHeaders];
@@ -1642,9 +1677,27 @@
                 };
 
                 const billNo = getVal(billNoCol);
-                const scheme = getVal(schemeCol);
+                const schemeFull = getVal(schemeCol); // e.g., "HAHKHATI NC PWSS (17681)"
                 const division = getVal(divisionCol);
                 const billType = getBillType(billNo);
+
+                // Extract SMT ID from scheme: "HAHKHATI NC PWSS (17681)" → smtId: "17681"
+                let smtId = '';
+                let schemeName = schemeFull;
+                let mappedSubdivision = '';
+                let mappedSoName = '';
+                
+                const smtMatch = schemeFull.match(/\((\d+)\)$/);
+                if (smtMatch) {
+                    smtId = smtMatch[1];
+                    schemeName = schemeFull.replace(/\s*\(\d+\)\s*$/, '').trim(); // Remove "(17681)"
+                    
+                    // Look up Sub-Division and SO Name from SMT ID mapping
+                    if (smtIdMap[smtId]) {
+                        mappedSubdivision = smtIdMap[smtId].subdivision;
+                        mappedSoName = smtIdMap[smtId].soName;
+                    }
+                }
 
                 let pendingLevel = null;
                 let dateObj = null;
@@ -1690,8 +1743,11 @@
 
                 reportData.push({
                     billNo,
-                    scheme,
+                    scheme: schemeName,
+                    smtId,
                     division,
+                    subdivision: mappedSubdivision,
+                    soName: mappedSoName,
                     billType,
                     pendingLevel,
                     pendingDays,
@@ -1716,7 +1772,9 @@
             renderOverview();
             renderReportTable();
             renderDivisionBreakdown();
-            renderRevertedHistory(); // NEW
+            renderSubdivisionBreakdown();
+            renderSonameBreakdown();
+            renderRevertedHistory();
 
             reportSection.style.display = 'block';
             btnExportReport.disabled = false;
@@ -2018,6 +2076,69 @@
             }).join('');
         }
 
+        function renderSubdivisionBreakdown() {
+            const bySubdivision = {};
+            reportData.forEach(r => {
+                const subDiv = r.subdivision || 'Unknown Sub-Division';
+                if (!bySubdivision[subDiv]) bySubdivision[subDiv] = { total: 0, days: [], cats: {} };
+                bySubdivision[subDiv].total++;
+                if (r.pendingDays !== null) bySubdivision[subDiv].days.push(r.pendingDays);
+                bySubdivision[subDiv].cats[r.pendingCategory] = (bySubdivision[subDiv].cats[r.pendingCategory] || 0) + 1;
+            });
+
+            const subdivisionHead = document.getElementById('subdivisionHead');
+            const subdivisionBody = document.getElementById('subdivisionBody');
+            subdivisionHead.innerHTML =
+                `<tr><th>Sub-Division</th><th>Total pending</th><th>Avg. days</th>${CATEGORY_ORDER.map(c => `<th>${c}</th>`).join('')}</tr>`;
+
+            const entries = Object.entries(bySubdivision).sort((a, b) => b[1].total - a[1].total);
+            if (entries.length === 0) {
+                subdivisionBody.innerHTML =
+                    `<tr><td colspan="${3 + CATEGORY_ORDER.length}" class="empty-row">No sub-division data available.</td></tr>`;
+                return;
+            }
+            subdivisionBody.innerHTML = entries.map(([subDiv, d]) => {
+                const avg = d.days.length ? Math.round(d.days.reduce((a, b) => a + b, 0) / d.days.length) : '—';
+                const catCells = CATEGORY_ORDER.map(c => {
+                    const n = d.cats[c] || 0;
+                    return `<td>${n > 0 ? `<span style="color:${CATEGORY_COLORS[c]}; font-weight:700;">${n}</span>` : '<span style="color:#cbd5e1;">0</span>'}</td>`;
+                }).join('');
+                return `<tr><td style="font-weight:700;">${subDiv}</td><td>${d.total}</td><td>${avg}</td>${catCells}</tr>`;
+            }).join('');
+        }
+
+        function renderSonameBreakdown() {
+            const bySoname = {};
+            reportData.forEach(r => {
+                const soName = r.soName || 'Unknown SO Name';
+                if (!bySoname[soName]) bySoname[soName] = { total: 0, days: [], cats: {} };
+                bySoname[soName].total++;
+                if (r.pendingDays !== null) bySoname[soName].days.push(r.pendingDays);
+                bySoname[soName].cats[r.pendingCategory] = (bySoname[soName].cats[r.pendingCategory] || 0) + 1;
+            });
+
+            const sonameHead = document.getElementById('sonameHead');
+            const sonameBody = document.getElementById('sonameBody');
+            sonameHead.innerHTML =
+                `<tr><th>SO Name</th><th>Total pending</th><th>Avg. days</th>${CATEGORY_ORDER.map(c => `<th>${c}</th>`).join('')}</tr>`;
+
+            const entries = Object.entries(bySoname).sort((a, b) => b[1].total - a[1].total);
+            if (entries.length === 0) {
+                sonameBody.innerHTML =
+                    `<tr><td colspan="${3 + CATEGORY_ORDER.length}" class="empty-row">No SO name data available.</td></tr>`;
+                return;
+            }
+            sonameBody.innerHTML = entries.map(([soName, d]) => {
+                const avg = d.days.length ? Math.round(d.days.reduce((a, b) => a + b, 0) / d.days.length) : '—';
+                const catCells = CATEGORY_ORDER.map(c => {
+                    const n = d.cats[c] || 0;
+                    return `<td>${n > 0 ? `<span style="color:${CATEGORY_COLORS[c]}; font-weight:700;">${n}</span>` : '<span style="color:#cbd5e1;">0</span>'}</td>`;
+                }).join('');
+                return `<tr><td style="font-weight:700;">${soName}</td><td>${d.total}</td><td>${avg}</td>${catCells}</tr>`;
+            }).join('');
+        }
+
+
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // REVERTED HISTORY (Column S)
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2262,6 +2383,48 @@
                     </div>`;
             });
 
+            // Sub-Division breakdown
+            const bySubdivision = {};
+            tinsukiaData.forEach(r => {
+                const subDiv = r.subdivision || 'Unknown';
+                if (!bySubdivision[subDiv]) bySubdivision[subDiv] = {};
+                bySubdivision[subDiv][r.pendingCategory] = (bySubdivision[subDiv][r.pendingCategory] || 0) + 1;
+            });
+            let subdivisionRowsHtml = '';
+            Object.entries(bySubdivision).sort((a, b) => {
+                const totalA = Object.values(a[1]).reduce((x, y) => x + y, 0);
+                const totalB = Object.values(b[1]).reduce((x, y) => x + y, 0);
+                return totalB - totalA;
+            }).forEach(([subDiv, cats]) => {
+                const totalS = Object.values(cats).reduce((a, b) => a + b, 0);
+                subdivisionRowsHtml += `<tr>
+                        <td><strong>${subDiv}</strong></td>
+                        ${CATEGORY_ORDER.map(c => `<td>${cats[c] || 0}</td>`).join('')}
+                        <td><strong>${totalS}</strong></td>
+                    </tr>`;
+            });
+
+            // SO Name breakdown
+            const bySoname = {};
+            tinsukiaData.forEach(r => {
+                const so = r.soName || 'Unknown';
+                if (!bySoname[so]) bySoname[so] = {};
+                bySoname[so][r.pendingCategory] = (bySoname[so][r.pendingCategory] || 0) + 1;
+            });
+            let sonameRowsHtml = '';
+            Object.entries(bySoname).sort((a, b) => {
+                const totalA = Object.values(a[1]).reduce((x, y) => x + y, 0);
+                const totalB = Object.values(b[1]).reduce((x, y) => x + y, 0);
+                return totalB - totalA;
+            }).forEach(([so, cats]) => {
+                const totalSo = Object.values(cats).reduce((a, b) => a + b, 0);
+                sonameRowsHtml += `<tr>
+                        <td><strong>${so}</strong></td>
+                        ${CATEGORY_ORDER.map(c => `<td>${cats[c] || 0}</td>`).join('')}
+                        <td><strong>${totalSo}</strong></td>
+                    </tr>`;
+            });
+
             // Reverted History for Tinsukia
             let revertedHtml = '';
             if (revertedTinsukia.length > 0) {
@@ -2316,7 +2479,7 @@
                         .print-grid .stat .num { font-size: 24px; font-weight: 800; color: #1e293b; }
                         .print-grid .stat .label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 600; letter-spacing: 0.3px; }
                         .print-grid .stat .sub { font-size: 10px; color: #94a3b8; margin-top: 2px; }
-                        .print-section { margin: 18px 0 12px 0; }
+                        .print-section { margin: 18px 0 12px 0; page-break-inside: avoid; }
                         .print-section h2 { font-size: 16px; font-weight: 700; color: #1e293b; border-bottom: 2px solid #8b5cf6; padding-bottom: 4px; margin-bottom: 10px; }
                         .print-section h2 i { color: #8b5cf6; margin-right: 8px; }
                         .print-table { width: 100%; border-collapse: collapse; font-size: 10.5px; }
@@ -2332,7 +2495,7 @@
                         .print-oldest-item .days { font-weight: 800; color: #dc2626; font-size: 13px; white-space: nowrap; }
                         .print-oldest-item .days small { font-weight: 600; font-size: 9px; color: #94a3b8; display: block; text-align: right; }
                         .print-footer { margin-top: 20px; font-size: 10px; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; }
-                        @media print { body { padding: 6mm; } .print-grid { break-inside: avoid; } .print-section { break-inside: avoid; } }
+                        @media print { body { padding: 6mm; } .print-grid { break-inside: avoid; } .print-section { page-break-inside: avoid; } }
                     </style>
                 </head>
                 <body>
@@ -2394,6 +2557,44 @@
                             </div>
                         </div>
 
+                        <!-- SUB-DIVISION BREAKDOWN -->
+                        <div class="print-section">
+                            <h2><i>🗂️</i> Breakdown by Sub-Division</h2>
+                            <div class="print-table-wrap">
+                                <table class="print-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Sub-Division</th>
+                                            ${CATEGORY_ORDER.map(c => `<th>${c}</th>`).join('')}
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${subdivisionRowsHtml || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;">No sub-division data available.</td></tr>'}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- SO NAME BREAKDOWN -->
+                        <div class="print-section">
+                            <h2><i>👤</i> Breakdown by SO Name</h2>
+                            <div class="print-table-wrap">
+                                <table class="print-table">
+                                    <thead>
+                                        <tr>
+                                            <th>SO Name</th>
+                                            ${CATEGORY_ORDER.map(c => `<th>${c}</th>`).join('')}
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${sonameRowsHtml || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;">No SO name data available.</td></tr>'}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
                         <!-- TOP 20 BILLS -->
                         <div class="print-section">
                             <h2><i>📄</i> Oldest Pending Bills — Top 20</h2>
@@ -2424,7 +2625,7 @@
                         window.onload = function() {
                             setTimeout(function() { window.print(); }, 400);
                         };
-                    <\/script>
+                    <\\/script>
                 </body>
                 </html>
             `;
@@ -2432,6 +2633,76 @@
             printWin.document.write(doc);
             printWin.document.close();
         }
+
+         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // SMT ID MAPPING (from external CSV)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        let smtIdMap = {}; // SMT ID → { subdivision, soName }
+        let smtIdMapLoaded = false; // Track if mapping is ready
+
+        async function loadSmtIdMapping() {
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR1W2SWzq6sOKhWn0Qsqpdi-eFEcryAsEFRZPn_Bb3IYd1RlCzBSMAKpjRDEU_ajEyRDYBZZpmgXNQ/pub?output=csv';
+            try {
+                const response = await fetch(csvUrl);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const csvText = await response.text();
+                const lines = csvText.trim().split('\n');
+                
+                if (lines.length === 0) return;
+                
+                console.log('📥 Parsing SMT ID mapping CSV...');
+                
+                // Parse data rows (skip header)
+                smtIdMap = {};
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    // CSV parsing with quoted field support
+                    const cells = [];
+                    let current = '';
+                    let inQuotes = false;
+                    for (let j = 0; j < line.length; j++) {
+                        const ch = line[j];
+                        if (ch === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (ch === ',' && !inQuotes) {
+                            cells.push(current.trim().replace(/^"|"$/g, ''));
+                            current = '';
+                        } else {
+                            current += ch;
+                        }
+                    }
+                    cells.push(current.trim().replace(/^"|"$/g, ''));
+
+                    // Column positions (0-based):
+                    // A=0: SMT ID
+                    // H=7: Sub-Division
+                    // I=8: SO NAME
+                    const smtId = cells[0] ? String(cells[0]).trim() : '';
+                    const subDiv = cells[7] ? String(cells[7]).trim() : '';
+                    const soName = cells[8] ? String(cells[8]).trim() : '';
+
+                    if (smtId) {
+                        smtIdMap[smtId] = {
+                            subdivision: subDiv,
+                            soName: soName
+                        };
+                        console.log(`  SMT ${smtId}: ${subDiv} | ${soName}`);
+                    }
+                }
+                smtIdMapLoaded = true;
+                console.log(`✅ Loaded ${Object.keys(smtIdMap).length} SMT ID mappings`);
+                showToast(`✅ SMT ID mapping loaded: ${Object.keys(smtIdMap).length} records`, 'fa-check-circle', '#16a34a');
+            } catch (err) {
+                console.error('❌ Failed to load SMT ID mapping:', err);
+                showToast('⚠️ Could not load SMT ID mapping. Reports may show "Unknown" values.', 'fa-exclamation-triangle', '#dc2626');
+                smtIdMapLoaded = true; // Mark as attempted so user can try generating report
+            }
+        }
+
+        // Load mapping on page load
+        loadSmtIdMapping();
 
         // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         // EVENT BINDING
